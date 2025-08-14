@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PsyhGuard — Аппроксимации</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --txt:#1f2937; --muted:#6b7280; --line:#e8ebf2;
+      --accent:#3b82f6; --accent-strong:#2563eb;
+      --danger:#fca5a5;
+      --c1:#bcd4ff; --c2:#bfead9; --c3:#ffe1b5; --c4:#e8c9ff; --c5:#ffd0d4; --c6:#c8f1ff; --c7:#d6f5c8; --c8:#cdd8ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
+    h1{margin:0 0 14px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+    .tab{padding:8px 12px;border-radius:10px;background:#eef3ff;color:#1e3a8a;border:1px solid #dfe7ff;cursor:pointer}
+    .tab.active{background:#e3ecff;border-color:#c9dafc;font-weight:600;color:#0f172a}
+    .row{display:flex;gap:16px;margin-top:18px}
+    .col{flex:1;background:var(--card);padding:18px;border-radius:14px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(17,24,39,.04)}
+    .muted{color:var(--muted);font-size:12px}
+    .input,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--txt)}
+    textarea{min-height:100px;resize:vertical}
+    .btn{cursor:pointer;padding:10px 16px;border-radius:10px;background:#fff;color:var(--txt);border:1px solid var(--line)}
+    .btn.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
+    .btn.primary:hover{background:var(--accent-strong)}
+    .btn.danger{background:#fff1f2;border-color:#ffd4d4;color:#7f1d1d}
+    .btn.ghost{background:#eef2f8;border-color:#e5e9f2}
+    .stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .item{position:relative;display:flex;align-items:center;gap:10px;
+          padding:12px 14px 12px 42px;border-radius:10px;background:#fff;border:1px solid var(--line);cursor:pointer}
+    .item.selected{outline:2px solid #cfe1ff;background:#f6f9ff}
+    .mini-del{
+      position:absolute; left:10px; top:50%; transform:translateY(-50%);
+      width:22px; height:22px; border-radius:999px; display:grid; place-items:center;
+      font-size:14px; line-height:1; border:1px solid #ffd4d4; background:#fff1f2; color:#7f1d1d;
+      cursor:pointer;
+    }
+    .chips{display:flex;gap:6px;margin-left:auto}
+    .dot{width:10px;height:10px;border-radius:999px;display:inline-block;border:1px solid #ffffffaa;box-shadow:0 0 0 1px #00000010}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .out h3{margin:0 0 10px}
+    .out .hint{margin:0 0 18px}
+
+    /* Mobile */
+    @media (max-width: 860px) {
+      .row{flex-direction:column}
+      .tab{padding:10px 14px}
+      .item{padding:14px 16px 14px 44px}
+      .wrap{padding:0 12px}
+      .btn{width:100%}
+      .stack{flex-direction:column;align-items:stretch}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PsyhGuard</h1>
+
+  <!-- вкладки типов -->
+  <div class="tabs" id="typeTabs"></div>
+
+  <div class="col">
+    <label class="muted">Вопрос / Ситуация</label>
+    <input id="question" class="input" placeholder="Кто я в этом мире?"/>
+  </div>
+
+  <div class="row">
+    <!-- Левый столбец -->
+    <div class="col">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="margin:0;">Базовый столбец — слова</h3>
+        <span class="muted">Тип: <b id="symbolType"></b></span>
+      </div>
+
+      <div class="stack">
+        <input id="newWord" class="input" placeholder="введите слово и нажмите Enter или «Добавить»"/>
+        <button id="addWord" class="btn">Добавить</button>
+      </div>
+
+      <div class="list" id="wordList"></div>
+
+      <div class="divider"></div>
+      <div class="stack" style="align-items:flex-start;flex-direction:column;margin-bottom:6px;">
+        <button id="combineSelected" class="btn">Объединить выбранные</button>
+        <div class="muted">Выберите несколько слов кликом по карточке слева → введите название справа → «Объединить выбранные». Одно слово можно использовать в разных аппроксимациях.</div>
+      </div>
+    </div>
+
+    <!-- Правый столбец -->
+    <div class="col">
+      <h3 style="margin:0;">Аппроксимации</h3>
+      <div class="stack" style="margin-bottom:6px;">
+        <input id="approxInput" class="input" placeholder="например: «влияю», «семья», «свобода»"/>
+      </div>
+      <div class="list" id="approxList"></div>
+    </div>
+  </div>
+
+  <!-- Лайнап текущего типа -->
+  <div class="col" style="margin-top:22px;">
+    <h3 style="margin:0 0 10px;">Лайнап (для текущего типа)</h3>
+    <textarea id="lineup" placeholder="Сформулируйте короткий лайн-ап для этого типа..."></textarea>
+    <div class="stack" style="align-items:center;margin-top:12px;">
+      <button id="saveLineup" class="btn">Сохранить лайнап</button>
+      <span class="muted" id="lineupSavedNote" style="display:none;">Лайнап сохранён.</span>
+    </div>
+  </div>
+
+  <!-- Все лайнапы -->
+  <div class="col" style="margin-top:22px;">
+    <h3 style="margin:0;">Все лайнапы (сводка по всем типам)</h3>
+    <div class="list" id="allLineupsView"></div>
+  </div>
+
+  <!-- Финальный вывод -->
+  <div class="col out" style="margin-top:24px;">
+    <h3>ВЫВОД</h3>
+    <div class="muted hint">На основе лайнапов сделай общий вывод, который приходит в голову.</div>
+    <textarea id="final" placeholder="Финальный вывод..."></textarea>
+
+    <div class="stack" style="align-items:center;margin-top:14px;">
+      <button id="finishBtn" class="btn primary">Завершить</button>
+      <span class="muted" id="savedNote" style="display:none;">Сохранено.</span>
+    </div>
+
+    <!-- Инлайновый вывод -->
+    <div id="finalInline" style="display:none; margin-top:18px;">
+      <div id="inlineQuestion" style="font-weight:700; margin-bottom:8px;"></div>
+      <div id="inlineAnswer"
+           style="background:#e9ebf1;border:1px solid #dfe3ec;color:#111827;
+                  padding:16px 22px;border-radius:16px;font-weight:600;display:inline-block;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ---- Константы и утилы ---- */
+  const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
+  const STORAGE_KEY="psyhguard-pwa-v1";
+  const PASTELS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c7)","var(--c8)"];
+  const colorAt=i=>PASTELS[i%PASTELS.length];
+  const uid=()=>Math.random().toString(36).slice(2,10);
+
+  /* ---- Состояние ---- */
+  let project={ id:uid(), question:"Кто я в этом мире?", final:"",
+    types:TYPES.reduce((a,t)=>{a[t]={words:[],approximations:[],lineup:""};return a;},{}) };
+  let currentType=TYPES[0];
+
+  /* ---- Элементы ---- */
+  const elTabs=document.getElementById('typeTabs');
+  const elSymbolType=document.getElementById('symbolType');
+  const elQuestion=document.getElementById('question');
+  const elWordList=document.getElementById('wordList');
+  const elNewWord=document.getElementById('newWord');
+  const elAddWord=document.getElementById('addWord');
+  const elApproxInput=document.getElementById('approxInput');
+  const elCombine=document.getElementById('combineSelected');
+  const elApproxList=document.getElementById('approxList');
+  const elLineup=document.getElementById('lineup');
+  const elSaveLineup=document.getElementById('saveLineup');
+  const elLineupSavedNote=document.getElementById('lineupSavedNote');
+  const elFinal=document.getElementById('final');
+  const savedNote=document.getElementById('savedNote');
+  const finishBtn=document.getElementById('finishBtn');
+  const inlineWrap=document.getElementById('finalInline');
+  const inlineQ=document.getElementById('inlineQuestion');
+  const inlineA=document.getElementById('inlineAnswer');
+  const elAllLineups=document.getElementById('allLineupsView');
+
+  /* ---- Tabs ---- */
+  function renderTabs(){
+    elTabs.innerHTML="";
+    TYPES.forEach(t=>{
+      const b=document.createElement('button');
+      b.className="tab"+(t===currentType?" active":"");
+      b.textContent=t;
+      b.onclick=()=>{currentType=t;applyTypeToUI();};
+      elTabs.appendChild(b);
+    });
+  }
+
+  /* ---- Words ---- */
+  function renderWords(){
+    const s=project.types[currentType];
+    elWordList.innerHTML="";
+    s.words.forEach(w=>{
+      const row=document.createElement('div');
+      row.className="item"+(w.selected?" selected":"");
+      row.onclick=(e)=>{ if(e.target.classList.contains('mini-del')) return;
+        w.selected=!w.selected; row.classList.toggle('selected',w.selected); };
+
+      const del=document.createElement('button'); del.className="mini-del"; del.title="Удалить"; del.textContent="×";
+      del.onclick=()=>{
+        (w.approxIds||[]).forEach(id=>{
+          const a=s.approximations.find(x=>x.id===id);
+          if(a){ a.words=a.words.filter(x=>x!==w.id); }
+        });
+        s.words=s.words.filter(x=>x.id!==w.id);
+        renderWords(); renderApproximations();
+      };
+
+      const label=document.createElement('span'); label.textContent=w.text;
+
+      const chips=document.createElement('div'); chips.className='chips';
+      (w.approxIds||[]).forEach(id=>{
+        const idx=s.approximations.findIndex(a=>a.id===id);
+        const dot=document.createElement('span'); dot.className='dot'; dot.style.background=colorAt(idx);
+        chips.appendChild(dot);
+      });
+
+      row.appendChild(del);
+      row.appendChild(label);
+      row.appendChild(chips);
+      elWordList.appendChild(row);
+    });
+  }
+
+  /* ---- Approximations ---- */
+  function renderApproximations(){
+    const s=project.types[currentType];
+    elApproxList.innerHTML="";
+    s.approximations.forEach((a,i)=>{
+      const row=document.createElement('div'); row.className='item';
+      row.style.borderLeft=`6px solid ${colorAt(i)}`;
+      row.innerHTML=`<strong>${a.text}</strong> <span class="muted">(${a.words.length})</span>`;
+      elApproxList.appendChild(row);
+    });
+  }
+
+  /* ---- Lineups ---- */
+  function renderLineups(){
+    const s=project.types[currentType];
+    elLineup.value=s.lineup||"";
+    elAllLineups.innerHTML="";
+    TYPES.forEach(t=>{
+      const L=project.types[t].lineup;
+      if(L && L.trim()){
+        const row=document.createElement('div'); row.className='item';
+        row.innerHTML=`<span class="muted">${t}:</span> ${L}`;
+        elAllLineups.appendChild(row);
+      }
+    });
+  }
+
+  /* ---- UI sync ---- */
+  function applyTypeToUI(){
+    elSymbolType.textContent=currentType;
+    elQuestion.value=project.question||"";
+    elFinal.value=project.final||"";
+    renderTabs(); renderWords(); renderApproximations(); renderLineups();
+
+    if((project.final||"").trim()){
+      inlineQ.textContent=project.question||"Вопрос не указан";
+      inlineA.textContent=project.final;
+      inlineWrap.style.display="block";
+    } else {
+      inlineWrap.style.display="none";
+    }
+  }
+
+  /* ---- Storage ---- */
+  function loadAll(){ try{const x=localStorage.getItem(STORAGE_KEY);return x?JSON.parse(x):[]}catch{return[]} }
+  function saveAll(v){ localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); }
+  function saveProjectList(p){
+    const list=loadAll(); const i=list.findIndex(x=>x.id===p.id);
+    if(i>=0) list[i]=p; else list.push(p); saveAll(list);
+  }
+
+  /* ---- Actions ---- */
+  function addWordFromInput(){
+    const v=(elNewWord.value||"").trim(); if(!v) return;
+    const s=project.types[currentType];
+    s.words.push({id:uid(),text:v,selected:false,approxIds:[]});
+    elNewWord.value=""; renderWords();
+  }
+  elAddWord.onclick=addWordFromInput;
+  elNewWord.addEventListener('keydown',e=>{ if(e.key==="Enter"){ e.preventDefault(); addWordFromInput(); }});
+
+  elCombine.onclick=()=>{
+    const name=(elApproxInput.value||"").trim(); if(!name) return alert("Введите название аппроксимации.");
+    const s=project.types[currentType];
+    const selected=s.words.filter(w=>w.selected);
+    if(selected.length===0) return alert("Выберите слева одно или несколько слов.");
+    const id=uid();
+    s.approximations.push({id,text:name,words:selected.map(w=>w.id)});
+    selected.forEach(w=>{ w.selected=false; (w.approxIds||(w.approxIds=[])); if(!w.approxIds.includes(id)) w.approxIds.push(id); });
+    elApproxInput.value="";
+    renderWords(); renderApproximations();
+  };
+
+  elSaveLineup.onclick=()=>{
+    const s=project.types[currentType];
+    s.lineup=(elLineup.value||"").trim();
+    renderLineups();
+    elLineupSavedNote.style.display="inline-block";
+    setTimeout(()=>elLineupSavedNote.style.display="none",1400);
+  };
+
+  // «Завершить»: сохранить и показать inline
+  finishBtn.onclick=()=>{
+    project.question = elQuestion.value || project.question;
+    project.final    = elFinal.value || "";
+    saveProjectList(project);
+
+    inlineQ.textContent = project.question || "Вопрос не указан";
+    inlineA.textContent = project.final || "Пока нет сформулированного ответа";
+    inlineWrap.style.display = "block";
+
+    savedNote.style.display="inline-block";
+    setTimeout(()=> savedNote.style.display="none", 1800);
+  };
+
+  /* ---- Init ---- */
+  renderTabs(); applyTypeToUI();
+
+  // PWA registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>
+</body>
+</html>
