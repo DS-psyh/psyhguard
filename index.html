@@ -3,26 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- фикс масштаба на мобилке, без авто-зума iOS -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>PsyhGuard — Аппроксимации</title>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3b82f6">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <style>
     :root{
       --bg:#f7f8fb; --card:#ffffff; --txt:#1f2937; --muted:#6b7280; --line:#e8ebf2;
       --accent:#3b82f6; --accent-strong:#2563eb;
-      --danger:#fca5a5;
       --c1:#bcd4ff; --c2:#bfead9; --c3:#ffe1b5; --c4:#e8c9ff; --c5:#ffd0d4; --c6:#c8f1ff; --c7:#d6f5c8; --c8:#cdd8ff;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;
+      background:var(--bg);color:var(--txt);
+      -webkit-text-size-adjust:100%; /* чтобы iOS не масштабировал шрифты */
+    }
     .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
     h1{margin:0 0 14px}
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
@@ -31,38 +37,38 @@
     .row{display:flex;gap:16px;margin-top:18px}
     .col{flex:1;background:var(--card);padding:18px;border-radius:14px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(17,24,39,.04)}
     .muted{color:var(--muted);font-size:12px}
-    .input,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--txt)}
+    .input,textarea{
+      width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--txt);
+      font-size:16px; /* >=16px чтобы iOS не увеличивал страницу при фокусе */
+    }
     textarea{min-height:100px;resize:vertical}
-    .btn{cursor:pointer;padding:10px 16px;border-radius:10px;background:#fff;color:var(--txt);border:1px solid var(--line)}
+    .btn{cursor:pointer;padding:10px 16px;border-radius:10px;background:#fff;color:var(--txt);border:1px solid var(--line);font-size:16px}
     .btn.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
     .btn.primary:hover{background:var(--accent-strong)}
-    .btn.danger{background:#fff1f2;border-color:#ffd4d4;color:#7f1d1d}
-    .btn.ghost{background:#eef2f8;border-color:#e5e9f2}
     .stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
     .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
     .item{position:relative;display:flex;align-items:center;gap:10px;
-          padding:12px 14px 12px 42px;border-radius:10px;background:#fff;border:1px solid var(--line);cursor:pointer}
+          padding:12px 14px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+    .clickable{cursor:pointer;padding-left:14px}
     .item.selected{outline:2px solid #cfe1ff;background:#f6f9ff}
-    .mini-del{
-      position:absolute; left:10px; top:50%; transform:translateY(-50%);
-      width:22px; height:22px; border-radius:999px; display:grid; place-items:center;
-      font-size:14px; line-height:1; border:1px solid #ffd4d4; background:#fff1f2; color:#7f1d1d;
-      cursor:pointer;
-    }
     .chips{display:flex;gap:6px;margin-left:auto}
     .dot{width:10px;height:10px;border-radius:999px;display:inline-block;border:1px solid #ffffffaa;box-shadow:0 0 0 1px #00000010}
     .divider{height:1px;background:var(--line);margin:14px 0}
     .out h3{margin:0 0 10px}
     .out .hint{margin:0 0 18px}
 
+    /* Кнопки действий у аппроксимаций (ред/удал) */
+    .actions{margin-left:auto;display:flex;gap:6px}
+    .btn.xs{padding:6px 10px;font-size:13px;border-radius:8px}
+
     /* Mobile */
     @media (max-width: 860px) {
       .row{flex-direction:column}
       .tab{padding:10px 14px}
-      .item{padding:14px 16px 14px 44px}
       .wrap{padding:0 12px}
       .btn{width:100%}
       .stack{flex-direction:column;align-items:stretch}
+      .actions{width:100%;justify-content:flex-end}
     }
   </style>
 </head>
@@ -74,7 +80,7 @@
   <div class="tabs" id="typeTabs"></div>
 
   <div class="col">
-    <label class="muted">Вопрос / Ситуация</label>
+    <label class="muted">Вопрос / Ситуация <span id="qLockNote" class="muted" style="display:none;">(вопрос закреплён)</span></label>
     <input id="question" class="input" placeholder="Кто я в этом мире?"/>
   </div>
 
@@ -96,7 +102,7 @@
       <div class="divider"></div>
       <div class="stack" style="align-items:flex-start;flex-direction:column;margin-bottom:6px;">
         <button id="combineSelected" class="btn">Объединить выбранные</button>
-        <div class="muted">Выберите несколько слов кликом по карточке слева → введите название справа → «Объединить выбранные». Одно слово можно использовать в разных аппроксимациях.</div>
+        <div class="muted">Выберите несколько слов кликом → введите название справа → «Объединить выбранные». Одно слово можно использовать в разных аппроксимациях.</div>
       </div>
     </div>
 
@@ -151,13 +157,13 @@
 <script>
   /* ---- Константы и утилы ---- */
   const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
-  const STORAGE_KEY="psyhguard-pwa-v1";
+  const STORAGE_KEY="psyhguard-pwa-v2";
   const PASTELS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c7)","var(--c8)"];
   const colorAt=i=>PASTELS[i%PASTELS.length];
   const uid=()=>Math.random().toString(36).slice(2,10);
 
   /* ---- Состояние ---- */
-  let project={ id:uid(), question:"Кто я в этом мире?", final:"",
+  let project={ id:uid(), question:"", questionLocked:false, final:"",
     types:TYPES.reduce((a,t)=>{a[t]={words:[],approximations:[],lineup:""};return a;},{}) };
   let currentType=TYPES[0];
 
@@ -165,6 +171,7 @@
   const elTabs=document.getElementById('typeTabs');
   const elSymbolType=document.getElementById('symbolType');
   const elQuestion=document.getElementById('question');
+  const qLockNote=document.getElementById('qLockNote');
   const elWordList=document.getElementById('wordList');
   const elNewWord=document.getElementById('newWord');
   const elAddWord=document.getElementById('addWord');
@@ -200,19 +207,8 @@
     elWordList.innerHTML="";
     s.words.forEach(w=>{
       const row=document.createElement('div');
-      row.className="item"+(w.selected?" selected":"");
-      row.onclick=(e)=>{ if(e.target.classList.contains('mini-del')) return;
-        w.selected=!w.selected; row.classList.toggle('selected',w.selected); };
-
-      const del=document.createElement('button'); del.className="mini-del"; del.title="Удалить"; del.textContent="×";
-      del.onclick=()=>{
-        (w.approxIds||[]).forEach(id=>{
-          const a=s.approximations.find(x=>x.id===id);
-          if(a){ a.words=a.words.filter(x=>x!==w.id); }
-        });
-        s.words=s.words.filter(x=>x.id!==w.id);
-        renderWords(); renderApproximations();
-      };
+      row.className="item clickable"+(w.selected?" selected":"");
+      row.onclick=()=>{ w.selected=!w.selected; row.classList.toggle('selected',w.selected); };
 
       const label=document.createElement('span'); label.textContent=w.text;
 
@@ -223,21 +219,47 @@
         chips.appendChild(dot);
       });
 
-      row.appendChild(del);
       row.appendChild(label);
       row.appendChild(chips);
       elWordList.appendChild(row);
     });
   }
 
-  /* ---- Approximations ---- */
+  /* ---- Approximations (редактирование/удаление) ---- */
   function renderApproximations(){
     const s=project.types[currentType];
     elApproxList.innerHTML="";
     s.approximations.forEach((a,i)=>{
       const row=document.createElement('div'); row.className='item';
       row.style.borderLeft=`6px solid ${colorAt(i)}`;
-      row.innerHTML=`<strong>${a.text}</strong> <span class="muted">(${a.words.length})</span>`;
+
+      const title=document.createElement('strong');
+      title.textContent=a.text;
+
+      const count=document.createElement('span');
+      count.className='muted';
+      count.style.marginLeft='6px';
+      count.textContent=`(${a.words.length})`;
+
+      const actions=document.createElement('div'); actions.className='actions';
+      const btnEdit=document.createElement('button'); btnEdit.className='btn xs'; btnEdit.textContent='Ред.';
+      btnEdit.onclick=()=>{
+        const nv=prompt('Изменить аппроксимацию:', a.text);
+        if(nv && nv.trim()){ a.text=nv.trim(); renderApproximations(); saveProjectList(project); }
+      };
+      const btnDel=document.createElement('button'); btnDel.className='btn xs'; btnDel.textContent='Удал.';
+      btnDel.onclick=()=>{
+        if(!confirm('Удалить аппроксимацию?')) return;
+        // убрать ссылку на неё у слов
+        s.words.forEach(w=>{
+          if(w.approxIds) w.approxIds = w.approxIds.filter(id=>id!==a.id);
+        });
+        s.approximations = s.approximations.filter(x=>x.id!==a.id);
+        renderWords(); renderApproximations(); saveProjectList(project);
+      };
+
+      actions.appendChild(btnEdit); actions.appendChild(btnDel);
+      row.appendChild(title); row.appendChild(count); row.appendChild(actions);
       elApproxList.appendChild(row);
     });
   }
@@ -261,6 +283,9 @@
   function applyTypeToUI(){
     elSymbolType.textContent=currentType;
     elQuestion.value=project.question||"";
+    elQuestion.disabled = !!project.questionLocked;
+    qLockNote.style.display = project.questionLocked ? 'inline' : 'none';
+
     elFinal.value=project.final||"";
     renderTabs(); renderWords(); renderApproximations(); renderLineups();
 
@@ -268,9 +293,7 @@
       inlineQ.textContent=project.question||"Вопрос не указан";
       inlineA.textContent=project.final;
       inlineWrap.style.display="block";
-    } else {
-      inlineWrap.style.display="none";
-    }
+    } else inlineWrap.style.display="none";
   }
 
   /* ---- Storage ---- */
@@ -282,16 +305,29 @@
   }
 
   /* ---- Actions ---- */
+  // Вопрос фиксируем после первого ввода (blur/Enter)
+  function lockQuestionIfFilled(){
+    const v=(elQuestion.value||"").trim();
+    if(!project.questionLocked && v){
+      project.question=v;
+      project.questionLocked=true;
+      applyTypeToUI();
+      saveProjectList(project);
+    }
+  }
+  elQuestion.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); lockQuestionIfFilled(); }});
+  elQuestion.addEventListener('blur',lockQuestionIfFilled);
+
   function addWordFromInput(){
     const v=(elNewWord.value||"").trim(); if(!v) return;
     const s=project.types[currentType];
     s.words.push({id:uid(),text:v,selected:false,approxIds:[]});
-    elNewWord.value=""; renderWords();
+    elNewWord.value=""; renderWords(); saveProjectList(project);
   }
-  elAddWord.onclick=addWordFromInput;
+  document.getElementById('addWord').onclick=addWordFromInput;
   elNewWord.addEventListener('keydown',e=>{ if(e.key==="Enter"){ e.preventDefault(); addWordFromInput(); }});
 
-  elCombine.onclick=()=>{
+  document.getElementById('combineSelected').onclick=()=>{
     const name=(elApproxInput.value||"").trim(); if(!name) return alert("Введите название аппроксимации.");
     const s=project.types[currentType];
     const selected=s.words.filter(w=>w.selected);
@@ -300,29 +336,23 @@
     s.approximations.push({id,text:name,words:selected.map(w=>w.id)});
     selected.forEach(w=>{ w.selected=false; (w.approxIds||(w.approxIds=[])); if(!w.approxIds.includes(id)) w.approxIds.push(id); });
     elApproxInput.value="";
-    renderWords(); renderApproximations();
+    renderWords(); renderApproximations(); saveProjectList(project);
   };
 
-  elSaveLineup.onclick=()=>{
+  document.getElementById('saveLineup').onclick=()=>{
     const s=project.types[currentType];
     s.lineup=(elLineup.value||"").trim();
-    renderLineups();
-    elLineupSavedNote.style.display="inline-block";
-    setTimeout(()=>elLineupSavedNote.style.display="none",1400);
+    renderLineups(); saveProjectList(project);
+    elLineupSavedNote.style.display="inline-block"; setTimeout(()=>elLineupSavedNote.style.display="none",1400);
   };
 
-  // «Завершить»: сохранить и показать inline
-  finishBtn.onclick=()=>{
-    project.question = elQuestion.value || project.question;
-    project.final    = elFinal.value || "";
+  document.getElementById('finishBtn').onclick=()=>{
+    project.final = elFinal.value || "";
     saveProjectList(project);
-
     inlineQ.textContent = project.question || "Вопрос не указан";
     inlineA.textContent = project.final || "Пока нет сформулированного ответа";
     inlineWrap.style.display = "block";
-
-    savedNote.style.display="inline-block";
-    setTimeout(()=> savedNote.style.display="none", 1800);
+    savedNote.style.display="inline-block"; setTimeout(()=> savedNote.style.display="none", 1800);
   };
 
   /* ---- Init ---- */
