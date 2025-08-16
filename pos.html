@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>PsyhGuard — ПОС</title>
+  <style>
+    :root{ --bg:#f7f8fb; --card:#fff; --txt:#1f2937; --line:#e8ebf2; --accent:#3b82f6; --accent-strong:#2563eb; }
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt);}
+    .wrap{max-width:800px;margin:24px auto 80px;padding:0 14px}
+    h1{margin:0 0 20px}
+    .cabinet-link{
+      position:fixed;top:16px;right:16px;
+      background:var(--accent);color:#fff;padding:8px 14px;border-radius:8px;
+      font-size:14px;text-decoration:none;font-weight:500;
+    }
+    .cabinet-link:hover{background:var(--accent-strong)}
+    .input{width:100%;padding:14px;border-radius:10px;border:1px solid var(--line);font-size:16px;background:#fff;}
+    .list{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+    .item{background:var(--card);border:1px solid var(--line);padding:12px 14px;
+      border-radius:10px;display:flex;justify-content:space-between;align-items:center;}
+    .text{flex:1;margin-right:10px;word-break:break-word}
+    .actions{display:flex;gap:8px}
+    .btn{cursor:pointer;padding:6px 12px;font-size:14px;border-radius:8px;border:1px solid var(--line);background:#fff}
+    .btn:hover{background:#f0f3fa}
+  </style>
+</head>
+<body>
+<a href="cabinet.html" class="cabinet-link">Кабинет</a>
+
+<div class="wrap">
+  <h1>Полу-осознаваемый слой</h1>
+  <input id="input" class="input" placeholder="Введите мысль или вопрос и нажмите Enter"/>
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+  const STORAGE_KEY="pos-questions-v1";
+  let items=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  const elInput=document.getElementById('input');
+  const elList=document.getElementById('list');
+
+  function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(items)); }
+  function render(){
+    elList.innerHTML="";
+    items.forEach((it,i)=>{
+      const row=document.createElement('div'); row.className='item';
+      const span=document.createElement('div'); span.className='text'; span.textContent=it;
+      const actions=document.createElement('div'); actions.className='actions';
+      const btnEdit=document.createElement('button'); btnEdit.className='btn'; btnEdit.textContent='Ред.';
+      btnEdit.onclick=()=>{const nv=prompt("Изменить запись:",it); if(nv!==null&&nv.trim()){items[i]=nv.trim();save();render();}};
+      const btnDel=document.createElement('button'); btnDel.className='btn'; btnDel.textContent='×';
+      btnDel.onclick=()=>{if(confirm("Удалить запись?")){items.splice(i,1);save();render();}};
+      actions.appendChild(btnEdit); actions.appendChild(btnDel);
+      row.appendChild(span); row.appendChild(actions);
+      elList.appendChild(row);
+    });
+  }
+  elInput.addEventListener('keydown',e=>{
+    if(e.key==="Enter"){const v=elInput.value.trim();if(v){items.unshift(v);elInput.value="";save();render();}}
+  });
+  render();
+</script>
+</body>
+</html>
