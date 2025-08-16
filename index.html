@@ -33,14 +33,12 @@
       padding:10px 16px;background:rgba(255,255,255,.85);
       backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
     }
-    .cabinet-link,.new-link{
+    .link{
       display:inline-flex;align-items:center;gap:.5rem;
-      padding:8px 14px;border-radius:9999px;
-      background:#fff;border:1px solid var(--line);
-      font-weight:600;text-decoration:none;color:var(--txt);
-      box-shadow:0 1px 2px rgba(0,0,0,.04);
+      padding:8px 14px;border-radius:9999px;background:#fff;border:1px solid var(--line);
+      font-weight:600;text-decoration:none;color:var(--txt);box-shadow:0 1px 2px rgba(0,0,0,.04)
     }
-    .cabinet-link:hover,.new-link:hover{background:var(--accent);color:#fff}
+    .link:hover{background:var(--accent);color:#fff}
 
     .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
     h1{margin:0 0 14px}
@@ -55,13 +53,12 @@
       font-size:16px;
     }
     textarea{min-height:100px;resize:vertical}
-    .btn{cursor:pointer;padding:10px 16px;border-radius:10px;background:#fff;color:var(--txt);border:1px solid var(--line);font-size:16px}
+    .btn{cursor:pointer;padding:10px 16px;border-radius:10px;background:#fff;color:#000;border:1px solid var(--line);font-size:16px}
     .btn.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
     .btn.primary:hover{background:var(--accent-strong)}
     .stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
     .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
-    .item{position:relative;display:flex;align-items:center;gap:10px;
-          padding:12px 14px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+    .item{position:relative;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid var(--line)}
     .clickable{cursor:pointer;padding-left:14px}
     .item.selected{outline:2px solid #cfe1ff;background:#f6f9ff}
     .chips{display:flex;gap:6px;margin-left:auto}
@@ -70,8 +67,12 @@
     .out h3{margin:0 0 10px}
     .out .hint{margin:0 0 18px}
 
-    .actions{margin-left:auto;display:flex;gap:6px}
-    .btn.xs{padding:6px 10px;font-size:13px;border-radius:8px}
+    /* утилити-классы вместо инлайна */
+    .row-between{display:flex;align-items:center;justify-content:space-between}
+    .h3{margin:0}
+    .mt-22{margin-top:22px}
+    .mt-24{margin-top:24px}
+    .h-sub{display:block;font-weight:500;opacity:.8}
 
     /* Mobile */
     @media (max-width: 860px) {
@@ -80,15 +81,14 @@
       .wrap{padding:0 12px}
       .btn{width:100%}
       .stack{flex-direction:column;align-items:stretch}
-      .actions{width:100%;justify-content:flex-end}
     }
   </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a class="new-link" href="index.html#new">Новый проект</a>
-  <a class="cabinet-link" href="cabinet.html" aria-label="Личный кабинет">Личный кабинет</a>
+  <a class="link" href="index.html#new">Новый проект</a>
+  <a class="link" href="cabinet.html">Личный кабинет</a>
 </header>
 
 <div class="wrap">
@@ -105,8 +105,8 @@
   <div class="row">
     <!-- Левый столбец -->
     <div class="col">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <h3 style="margin:0;">Базовый столбец — слова</h3>
+      <div class="row-between">
+        <h3 class="h3">Базовый столбец — слова</h3>
         <span class="muted">Тип: <b id="symbolType"></b></span>
       </div>
 
@@ -126,7 +126,7 @@
 
     <!-- Правый столбец -->
     <div class="col">
-      <h3 style="margin:0;">Аппроксимации</h3>
+      <h3 class="h3">Аппроксимации</h3>
       <div class="stack" style="margin-bottom:6px;">
         <input id="approxInput" class="input" placeholder="например: «влияю», «семья», «свобода»"/>
       </div>
@@ -135,8 +135,8 @@
   </div>
 
   <!-- Лайнап текущего типа -->
-  <div class="col" style="margin-top:22px;">
-    <h3 style="margin:0 0 10px;">Лайнап (для текущего типа)</h3>
+  <div class="col mt-22">
+    <h3 class="h3" style="margin-bottom:10px;">Лайнап (для текущего типа)</h3>
     <textarea id="lineup" placeholder="Сформулируйте короткий лайн-ап для этого типа..."></textarea>
     <div class="stack" style="align-items:center;margin-top:12px;">
       <button id="saveLineup" class="btn">Сохранить лайнап</button>
@@ -145,16 +145,16 @@
   </div>
 
   <!-- Все лайнапы -->
-  <div class="col" style="margin-top:22px;">
-    <h3 style="margin:0;">
+  <div class="col mt-22">
+    <h3 class="h3">
       Все лайнапы
-      <span style="display:block;font-weight:500;opacity:.8">(сводка по всем типам)</span>
+      <span class="h-sub">(сводка по всем типам)</span>
     </h3>
     <div class="list" id="allLineupsView"></div>
   </div>
 
   <!-- Финальный вывод -->
-  <div class="col out" style="margin-top:24px;">
+  <div class="col out mt-24">
     <h3>ВЫВОД</h3>
     <div class="muted hint">На основе лайнапов сделай общий вывод, который приходит в голову.</div>
     <textarea id="final" placeholder="Финальный вывод..."></textarea>
@@ -164,6 +164,7 @@
       <span class="muted" id="savedNote" style="display:none;">Сохранено.</span>
     </div>
 
+    <!-- Инлайновый вывод -->
     <div id="finalInline" style="display:none; margin-top:18px;">
       <div id="inlineQuestion" style="font-weight:700; margin-bottom:8px;"></div>
       <div id="inlineAnswer"
@@ -175,231 +176,175 @@
 </div>
 
 <script>
-  /* ---- Константы и утилы ---- */
-  const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
-  const STORAGE_KEY="psyhguard-pwa-v2";
-  const ACTIVE_KEY="psyhguard-active-id";
-  const PASTELS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c7)","var(--c8)"];
-  const colorAt=i=>PASTELS[i%PASTELS.length];
-  const uid=()=>Math.random().toString(36).slice(2,10);
+/* ---------- мини-хелперы ---------- */
+const $=s=>document.querySelector(s), el=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const PASTELS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c7)","var(--c8)"];
+const colorAt=i=>PASTELS[i%PASTELS.length];
 
-  /* ---- Состояние ---- */
-  let project={ id:uid(), question:"", questionLocked:false, final:"",
-    types:TYPES.reduce((a,t)=>{a[t]={words:[],approximations:[],lineup:""};return a;},{}) };
-  let currentType=TYPES[0];
+/* ---------- константы/состояние ---------- */
+const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
+const STORAGE_KEY="psyhguard-pwa-v2";
+const ACTIVE_KEY="psyhguard-active-id"; // для выбора из кабинета
+let currentType=TYPES[0];
+let project={
+  id:uid(), question:"", questionLocked:false, final:"",
+  types:TYPES.reduce((a,t)=>(a[t]={words:[],approximations:[],lineup:""},a),{})
+};
 
-  /* ---- Элементы ---- */
-  const elTabs=document.getElementById('typeTabs');
-  const elSymbolType=document.getElementById('symbolType');
-  const elQuestion=document.getElementById('question');
-  const qLockNote=document.getElementById('qLockNote');
-  const elWordList=document.getElementById('wordList');
-  const elNewWord=document.getElementById('newWord');
-  const elAddWord=document.getElementById('addWord');
-  const elApproxInput=document.getElementById('approxInput');
-  const elCombine=document.getElementById('combineSelected');
-  const elApproxList=document.getElementById('approxList');
-  const elLineup=document.getElementById('lineup');
-  const elSaveLineup=document.getElementById('saveLineup');
-  const elLineupSavedNote=document.getElementById('lineupSavedNote');
-  const elFinal=document.getElementById('final');
-  const savedNote=document.getElementById('savedNote');
-  const finishBtn=document.getElementById('finishBtn');
-  const inlineWrap=document.getElementById('finalInline');
-  const inlineQ=document.getElementById('inlineQuestion');
-  const inlineA=document.getElementById('inlineAnswer');
-  const elAllLineups=document.getElementById('allLineupsView');
+/* ---------- storage ---------- */
+const loadAll=()=>{try{const x=localStorage.getItem(STORAGE_KEY);return x?JSON.parse(x):[]}catch{ return [] }};
+const saveAll=v=>localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
+const saveProject=p=>{const L=loadAll(); const i=L.findIndex(x=>x.id===p.id); (i>=0?L[i]=p:L.push(p)); saveAll(L)};
 
-  /* ---- Tabs ---- */
-  function renderTabs(){
-    elTabs.innerHTML="";
-    TYPES.forEach(t=>{
-      const b=document.createElement('button');
-      b.className="tab"+(t===currentType?" active":"");
-      b.textContent=t;
-      b.onclick=()=>{currentType=t;applyTypeToUI();};
-      elTabs.appendChild(b);
-    });
+/* ---------- рендер ---------- */
+function renderTabs(){
+  const box=el('typeTabs'); box.innerHTML='';
+  TYPES.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='tab'+(t===currentType?' active':'');
+    b.textContent=t;
+    b.onclick=()=>{currentType=t;render();};
+    box.appendChild(b);
+  });
+}
+function renderWords(){
+  const s=project.types[currentType], box=el('wordList'); box.innerHTML='';
+  s.words.forEach(w=>{
+    const row=document.createElement('div');
+    row.className='item clickable'+(w.selected?' selected':'');
+    row.dataset.wordId=w.id;
+    row.innerHTML = `
+      <span>${w.text}</span>
+      <div class="chips">${
+        (w.approxIds||[]).map(id=>{
+          const idx=s.approximations.findIndex(a=>a.id===id);
+          return `<span class="dot" style="background:${colorAt(idx)}"></span>`;
+        }).join('')
+      }</div>`;
+    box.appendChild(row);
+  });
+}
+function renderApproximations(){
+  const s=project.types[currentType], box=el('approxList'); box.innerHTML='';
+  s.approximations.forEach((a,i)=>{
+    const row=document.createElement('div'); row.className='item'; row.style.borderLeft=`6px solid ${colorAt(i)}`;
+    row.dataset.approxId=a.id;
+    row.innerHTML=`
+      <strong>${a.text}</strong>
+      <span class="muted" style="margin-left:6px;">(${a.words.length})</span>
+      <div class="actions" style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn xs" data-act="edit">Ред.</button>
+        <button class="btn xs" data-act="del">Удал.</button>
+      </div>`;
+    box.appendChild(row);
+  });
+}
+function renderLineups(){
+  const s=project.types[currentType]; el('lineup').value=s.lineup||'';
+  const all=el('allLineupsView'); all.innerHTML='';
+  TYPES.forEach(t=>{
+    const L=(project.types[t].lineup||'').trim();
+    if(L) all.insertAdjacentHTML('beforeend', `<div class="item"><span class="muted">${t}:</span> ${L}</div>`);
+  });
+}
+function render(){
+  el('symbolType').textContent=currentType;
+  el('question').value=project.question||'';
+  el('question').disabled=!!project.questionLocked;
+  el('qLockNote').style.display=project.questionLocked?'inline':'none';
+  el('final').value=project.final||'';
+  renderTabs(); renderWords(); renderApproximations(); renderLineups();
+
+  const hasFinal=(project.final||'').trim();
+  $('#finalInline').style.display=hasFinal?'block':'none';
+  if(hasFinal){
+    el('inlineQuestion').textContent=project.question||'Вопрос не указан';
+    el('inlineAnswer').textContent=project.final;
   }
+}
 
-  /* ---- Words ---- */
-  function renderWords(){
-    const s=project.types[currentType];
-    elWordList.innerHTML="";
-    s.words.forEach(w=>{
-      const row=document.createElement('div');
-      row.className="item clickable"+(w.selected?" selected":"");
-      row.onclick=()=>{ w.selected=!w.selected; row.classList.toggle('selected',w.selected); };
-
-      const label=document.createElement('span'); label.textContent=w.text;
-
-      const chips=document.createElement('div'); chips.className='chips';
-      (w.approxIds||[]).forEach(id=>{
-        const idx=s.approximations.findIndex(a=>a.id===id);
-        const dot=document.createElement('span'); dot.className='dot'; dot.style.background=colorAt(idx);
-        chips.appendChild(dot);
-      });
-
-      row.appendChild(label);
-      row.appendChild(chips);
-      elWordList.appendChild(row);
-    });
+/* ---------- обработчики ---------- */
+// выбор проекта при входе (из кабинета или новый)
+(function initProject(){
+  const list = loadAll();
+  const fromHashNew = location.hash === '#new';
+  const activeId = fromHashNew ? null : localStorage.getItem(ACTIVE_KEY);
+  if (fromHashNew || !list.length) {
+    project.id = uid(); saveProject(project); localStorage.setItem(ACTIVE_KEY, project.id);
+  } else {
+    const found = list.find(p=>p.id===activeId) || list[0];
+    if (found) { project = found; localStorage.setItem(ACTIVE_KEY, project.id); }
   }
+})();
 
-  /* ---- Approximations ---- */
-  function renderApproximations(){
-    const s=project.types[currentType];
-    elApproxList.innerHTML="";
-    s.approximations.forEach((a,i)=>{
-      const row=document.createElement('div'); row.className='item';
-      row.style.borderLeft=`6px solid ${colorAt(i)}`;
+// фиксируем вопрос
+const lockQ=()=>{const v=(el('question').value||'').trim(); if(!project.questionLocked && v){project.question=v; project.questionLocked=true; render(); saveProject(project);} };
+el('question').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); lockQ(); }});
+el('question').addEventListener('blur',lockQ);
 
-      const title=document.createElement('strong');
-      title.textContent=a.text;
+// добавить слово
+function addWord(){
+  const v=(el('newWord').value||'').trim(); if(!v) return;
+  project.types[currentType].words.push({id:uid(),text:v,selected:false,approxIds:[]});
+  el('newWord').value=''; renderWords(); saveProject(project);
+}
+el('addWord').onclick=addWord;
+el('newWord').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addWord(); }});
 
-      const count=document.createElement('span');
-      count.className='muted';
-      count.style.marginLeft='6px';
-      count.textContent=`(${a.words.length})`;
+// выбор слов (делегирование)
+el('wordList').addEventListener('click',e=>{
+  const row=e.target.closest('.item'); if(!row) return;
+  const s=project.types[currentType], w=s.words.find(x=>x.id===row.dataset.wordId);
+  if(!w) return;
+  w.selected=!w.selected; row.classList.toggle('selected',w.selected);
+});
 
-      const actions=document.createElement('div'); actions.className='actions';
-      const btnEdit=document.createElement('button'); btnEdit.className='btn xs'; btnEdit.textContent='Ред.';
-      btnEdit.onclick=()=>{
-        const nv=prompt('Изменить аппроксимацию:', a.text);
-        if(nv && nv.trim()){ a.text=nv.trim(); renderApproximations(); saveProjectList(project); }
-      };
-      const btnDel=document.createElement('button'); btnDel.className='btn xs'; btnDel.textContent='Удал.';
-      btnDel.onclick=()=>{
-        if(!confirm('Удалить аппроксимацию?')) return;
-        s.words.forEach(w=>{
-          if(w.approxIds) w.approxIds = w.approxIds.filter(id=>id!==a.id);
-        });
-        s.approximations = s.approximations.filter(x=>x.id!==a.id);
-        renderWords(); renderApproximations(); saveProjectList(project);
-      };
+// создать аппроксимацию из выбранных
+el('combineSelected').onclick=()=>{
+  const name=(el('approxInput').value||'').trim(); if(!name) return alert('Введите название аппроксимации.');
+  const s=project.types[currentType], selected=s.words.filter(w=>w.selected);
+  if(!selected.length) return alert('Выберите слева одно или несколько слов.');
+  const id=uid();
+  s.approximations.push({id,text:name,words:selected.map(w=>w.id)});
+  selected.forEach(w=>{ w.selected=false; (w.approxIds||(w.approxIds=[])).includes(id)||w.approxIds.push(id); });
+  el('approxInput').value=''; renderWords(); renderApproximations(); saveProject(project);
+};
 
-      actions.appendChild(btnEdit); actions.appendChild(btnDel);
-      row.appendChild(title); row.appendChild(count); row.appendChild(actions);
-      elApproxList.appendChild(row);
-    });
+// редактировать/удалить аппроксимацию (делегирование)
+el('approxList').addEventListener('click',e=>{
+  const act=e.target.dataset.act; if(!act) return;
+  const row=e.target.closest('[data-approx-id]'); const id=row.dataset.approxId;
+  const s=project.types[currentType]; const a=s.approximations.find(x=>x.id===id); if(!a) return;
+
+  if(act==='edit'){
+    const nv=prompt('Изменить аппроксимацию:', a.text);
+    if(nv && nv.trim()){ a.text=nv.trim(); renderApproximations(); saveProject(project); }
+  } else if(act==='del'){
+    if(!confirm('Удалить аппроксимацию?')) return;
+    s.words.forEach(w=>{ if(w.approxIds) w.approxIds=w.approxIds.filter(x=>x!==id); });
+    s.approximations=s.approximations.filter(x=>x.id!==id);
+    renderWords(); renderApproximations(); saveProject(project);
   }
+});
 
-  /* ---- Lineups ---- */
-  function renderLineups(){
-    const s=project.types[currentType];
-    elLineup.value=s.lineup||"";
-    elAllLineups.innerHTML="";
-    TYPES.forEach(t=>{
-      const L=project.types[t].lineup;
-      if(L && L.trim()){
-        const row=document.createElement('div'); row.className='item';
-        row.innerHTML=`<span class="muted">${t}:</span> ${L}`;
-        elAllLineups.appendChild(row);
-      }
-    });
-  }
+// лайнапы / финал
+el('saveLineup').onclick=()=>{
+  project.types[currentType].lineup=(el('lineup').value||'').trim();
+  renderLineups(); saveProject(project);
+  el('lineupSavedNote').style.display='inline-block'; setTimeout(()=>el('lineupSavedNote').style.display='none',1400);
+};
+el('finishBtn').onclick=()=>{
+  project.final=el('final').value||'';
+  saveProject(project); render();
+  el('savedNote').style.display='inline-block'; setTimeout(()=>el('savedNote').style.display='none',1800);
+};
 
-  /* ---- UI sync ---- */
-  function applyTypeToUI(){
-    elSymbolType.textContent=currentType;
-    elQuestion.value=project.question||"";
-    elQuestion.disabled = !!project.questionLocked;
-    qLockNote.style.display = project.questionLocked ? 'inline' : 'none';
+/* ---------- init ---------- */
+render();
 
-    elFinal.value=project.final||"";
-    renderTabs(); renderWords(); renderApproximations(); renderLineups();
-
-    if((project.final||"").trim()){
-      inlineQ.textContent=project.question||"Вопрос не указан";
-      inlineA.textContent=project.final;
-      inlineWrap.style.display="block";
-    } else inlineWrap.style.display="none";
-  }
-
-  /* ---- Storage ---- */
-  function loadAll(){ try{const x=localStorage.getItem(STORAGE_KEY);return x?JSON.parse(x):[]}catch{return[]} }
-  function saveAll(v){ localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); }
-  function saveProjectList(p){
-    const list=loadAll(); const i=list.findIndex(x=>x.id===p.id);
-    if(i>=0) list[i]=p; else list.push(p); saveAll(list);
-  }
-
-  /* ---- Actions ---- */
-  function lockQuestionIfFilled(){
-    const v=(elQuestion.value||"").trim();
-    if(!project.questionLocked && v){
-      project.question=v;
-      project.questionLocked=true;
-      applyTypeToUI();
-      saveProjectList(project);
-    }
-  }
-  elQuestion.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); lockQuestionIfFilled(); }});
-  elQuestion.addEventListener('blur',lockQuestionIfFilled);
-
-  function addWordFromInput(){
-    const v=(elNewWord.value||"").trim(); if(!v) return;
-    const s=project.types[currentType];
-    s.words.push({id:uid(),text:v,selected:false,approxIds:[]});
-    elNewWord.value=""; renderWords(); saveProjectList(project);
-  }
-  document.getElementById('addWord').onclick=addWordFromInput;
-  elNewWord.addEventListener('keydown',e=>{ if(e.key==="Enter"){ e.preventDefault(); addWordFromInput(); }});
-
-  document.getElementById('combineSelected').onclick=()=>{
-    const name=(elApproxInput.value||"").trim(); if(!name) return alert("Введите название аппроксимации.");
-    const s=project.types[currentType];
-    const selected=s.words.filter(w=>w.selected);
-    if(selected.length===0) return alert("Выберите слева одно или несколько слов.");
-    const id=uid();
-    s.approximations.push({id,text:name,words:selected.map(w=>w.id)});
-    selected.forEach(w=>{ w.selected=false; (w.approxIds||(w.approxIds=[])); if(!w.approxIds.includes(id)) w.approxIds.push(id); });
-    elApproxInput.value="";
-    renderWords(); renderApproximations(); saveProjectList(project);
-  };
-
-  document.getElementById('saveLineup').onclick=()=>{
-    const s=project.types[currentType];
-    s.lineup=(elLineup.value||"").trim();
-    renderLineups(); saveProjectList(project);
-    elLineupSavedNote.style.display="inline-block"; setTimeout(()=>elLineupSavedNote.style.display="none",1400);
-  };
-
-  document.getElementById('finishBtn').onclick=()=>{
-    project.final = elFinal.value || "";
-    saveProjectList(project);
-    inlineQ.textContent = project.question || "Вопрос не указан";
-    inlineA.textContent = project.final || "Пока нет сформулированного ответа";
-    inlineWrap.style.display = "block";
-    savedNote.style.display="inline-block"; setTimeout(()=> savedNote.style.display="none", 1800);
-  };
-
-  /* ---- Init ---- */
-  // поддержка выбора проекта из кабинета
-  (function initProject(){
-    const list = loadAll();
-    const fromHashNew = location.hash === '#new';
-    const activeId = fromHashNew ? null : localStorage.getItem(ACTIVE_KEY);
-
-    if (fromHashNew || !list.length) {
-      project.id = uid();
-      saveProjectList(project);
-      localStorage.setItem(ACTIVE_KEY, project.id);
-    } else {
-      const found = list.find(p=>p.id===activeId) || list[0];
-      if (found) { project = found; localStorage.setItem(ACTIVE_KEY, project.id); }
-      else { saveProjectList(project); localStorage.setItem(ACTIVE_KEY, project.id); }
-    }
-  })();
-
-  renderTabs(); applyTypeToUI();
-
-  // PWA registration
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
-    });
-  }
+// PWA
+if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
 </script>
 </body>
 </html>
