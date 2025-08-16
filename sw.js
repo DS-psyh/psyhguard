@@ -1,7 +1,10 @@
-const CACHE='psyhguard-cache-v1';
+const CACHE='psyhguard-cache-v2';
 const ASSETS=[
   './',
   './index.html',
+  './cabinet.html',
+  './attention.html',
+  './pos.html',          // если файла пока нет — просто удалите эту строку
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
