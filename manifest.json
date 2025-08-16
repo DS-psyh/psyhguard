@@ -2,8 +2,8 @@
   "name": "PsyhGuard",
   "short_name": "PsyhGuard",
   "description": "Психологический помощник — Аппроксимации",
-  "start_url": "./index.html",
-  "scope": "./",
+ "start_url": "./cabinet.html",
+  "scope": "./"
   "display": "standalone",
   "background_color": "#f7f8fb",
   "theme_color": "#3b82f6",
