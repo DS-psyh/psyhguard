@@ -2,87 +2,25 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Личный кабинет — PsyhGuard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Кабинет</title>
   <style>
-    :root{
-      --bg:#f7f8fb; --card:#ffffff; --txt:#1f2937; --muted:#6b7280; --line:#e8ebf2; --accent:#3b82f6;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
-    /* header */
-    .app-header{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;
-      padding:10px 16px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-    .link{display:inline-flex;align-items:center;gap:.5rem;padding:8px 14px;border-radius:9999px;background:#fff;border:1px solid var(--line);
-      font-weight:600;text-decoration:none;color:var(--txt);box-shadow:0 1px 2px rgba(0,0,0,.04)}
-    .link:hover{background:var(--accent);color:#fff}
-    .wrap{max-width:1100px;margin:24px auto 96px;padding:0 14px}
-    h2{margin:0 0 10px}
-    /* layout */
-    .grid2{display:grid;grid-template-columns: 1fr; gap:16px;}
-    @media (min-width: 980px){ .grid2{grid-template-columns: 1.2fr .8fr;} }
-    .section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(17,24,39,.04)}
-    .muted{color:var(--muted)}
-    /* chips list */
-    .chips{display:grid;grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:10px}
-    .chip{display:flex;align-items:center;justify-content:center;text-align:center;
-      padding:14px;border-radius:16px;background:#fff;border:1px solid var(--line);font-weight:600;cursor:pointer}
-    .chip:hover{border-color:#c9dafc;background:#f6f9ff}
-    /* apps */
-    .apps{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width:700px){ .apps{grid-template-columns:repeat(2,1fr);} }
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#f7f8fb;color:#1f2937}
+    .wrap{max-width:600px;margin:40px auto;padding:0 20px}
+    h1{margin:0 0 20px}
+    .list{display:flex;flex-direction:column;gap:12px}
+    a{display:block;padding:14px 16px;border-radius:10px;background:#fff;border:1px solid #e5e7eb;
+      text-decoration:none;color:#1f2937;font-size:16px;font-weight:500}
+    a:hover{background:#eef2ff;border-color:#c7d2fe}
   </style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="muted">Личный кабинет</div>
-    <div>
-      <a class="link" href="index.html#new">Новый проект</a>
-      <a class="link" href="index.html">← В приложение</a>
-    </div>
-  </header>
-
-  <main class="wrap grid2">
-    <section class="section">
-      <h2>История вопросов</h2>
-      <div id="history" class="chips"></div>
-      <div id="empty" class="muted" style="display:none;margin-top:8px;">Пока пусто. Задайте вопрос в приложении — он появится здесь.</div>
-    </section>
-
-    <aside class="section">
-      <h2>Приложения</h2>
-      <div class="apps">
-        <a class="link" href="index.html">Аппроксимации</a>
-        <!-- Добавляй другие мини-приложения здесь теми же ссылками -->
-        <a class="link" href="#" onclick="alert('Заглушка');return false;">Инструмент 2</a>
-      </div>
-    </aside>
-  </main>
-
-  <script>
-    // общие ключи
-    const STORAGE_KEY="psyhguard-pwa-v2";
-    const ACTIVE_KEY="psyhguard-active-id";
-    function loadAll(){ try{const x=localStorage.getItem(STORAGE_KEY);return x?JSON.parse(x):[]}catch{return[]} }
-
-    const list=loadAll();
-    const box=document.getElementById('history');
-    const empty=document.getElementById('empty');
-
-    if(!list.length){ empty.style.display='block'; }
-    else{
-      list.forEach(p=>{
-        const div=document.createElement('div');
-        div.className='chip';
-        div.textContent = (p.question||'Без вопроса');
-        div.title = 'Открыть проект';
-        div.onclick = ()=>{
-          localStorage.setItem(ACTIVE_KEY, p.id);
-          location.href = 'index.html';
-        };
-        box.appendChild(div);
-      });
-    }
-  </script>
+<div class="wrap">
+  <h1>Кабинет</h1>
+  <div class="list">
+    <a href="app.html">Аппроксимации</a>
+    <a href="pos.html">Полу-осознаваемый слой</a>
+  </div>
+</div>
 </body>
 </html>
