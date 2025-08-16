@@ -15,17 +15,13 @@
   <style>
     :root{
       --bg:#f7f8fb; --card:#fff; --txt:#111827; --muted:#6b7280; --line:#e8ebf2;
-      --accent:#3b82f6; --accent-strong:#2563eb;
-      --pos:#10b981; --neg:#ef4444;
+      --accent:#3b82f6; --accent-strong:#2563eb; --pos:#10b981;
+      --warn:#fee2e2; --warnb:#ef4444;
       --c1:#bcd4ff; --c2:#bfead9; --c3:#ffe1b5; --c4:#e8c9ff; --c5:#ffd0d4; --c6:#c8f1ff; --c7:#d6f5c8; --c8:#cdd8ff;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;
-      background:var(--bg);color:var(--txt);
-      -webkit-text-size-adjust:100%;
-    }
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
     .wrap{max-width:1100px;margin:20px auto 120px;padding:0 14px}
     .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .title{margin:0;font-size:22px}
@@ -33,24 +29,25 @@
     .btn.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
     .btn.primary:hover{background:var(--accent-strong)}
     .btn.xs{padding:6px 10px;font-size:13px;border-radius:8px}
+    .btn.danger{background:var(--warn);border-color:#fecaca}
+    .btn.danger.on{background:#fecaca;border-color:var(--warnb);color:#7f1d1d;font-weight:700}
     .muted{color:var(--muted)}
     .row{display:flex;gap:12px;flex-wrap:wrap}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 8px rgba(17,24,39,.04);padding:14px}
+    .hint{margin-top:6px}
     .month{margin-top:14px}
     .month-head{display:flex;align-items:center;gap:10px;cursor:pointer}
     .month-title{font-weight:700}
     .columns{display:flex;gap:12px;align-items:flex-end;overflow-x:auto;padding:8px 0}
     .col{min-width:140px;display:flex;flex-direction:column;align-items:center;gap:8px}
-    .col-head{display:flex;flex-direction:column;align-items:center}
-    .col-name{font-weight:700;text-align:center}
-    .count{font-size:12px;color:var(--muted)}
     .bar{
       width:100%; height:260px; border:1px solid var(--line); border-radius:12px; background:#fff;
       padding:6px; display:flex; flex-direction:column-reverse; gap:4px; overflow:hidden;
     }
-    .cell{height:10px;border-radius:6px;opacity:.95}
-    .cell.pos{background:var(--pos)}
-    .cell.neg{background:var(--neg)}
+    .cell{height:10px;border-radius:6px;opacity:.95;background:var(--pos)}
+    .meta{display:flex;flex-direction:column;align-items:center;margin-top:2px}
+    .col-name{font-weight:700;text-align:center;border-bottom:3px solid transparent}
+    .count{font-size:12px;color:var(--muted)}
     .controls{display:flex;gap:6px}
     .controls .btn{min-width:38px}
     .addCol{display:flex;gap:8px;margin:8px 0}
@@ -64,17 +61,15 @@
     }
     .wide{flex:1}
 
+    /* delete mode styles */
+    body.del-mode .controls .btn.plus{background:#ffe4e6;border-color:#fecdd3}
+    body.del-mode .controls .btn.plus:hover{background:#fecaca}
+
     /* modal */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px}
     .modal .box{max-width:900px;width:100%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
     .table{width:100%;border-collapse:collapse;margin-top:8px}
     .table th,.table td{border-bottom:1px solid var(--line);padding:8px;text-align:left}
-    .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef3ff;color:#1e3a8a;font-size:12px;border:1px solid #dfe7ff}
-
-    @media (max-width:860px){
-      .columns{padding-bottom:2px}
-      .bottom-bar{gap:8px}
-    }
   </style>
 </head>
 <body>
@@ -92,8 +87,10 @@
       <div class="addCol">
         <input id="newColName" class="input" placeholder="Новый столбик (например, «Спорт»)" />
         <button id="addColBtn" class="btn">Добавить столбик</button>
+        <button id="delModeBtn" class="btn danger">Удалить столбик</button>
       </div>
     </div>
+    <div id="delHint" class="muted hint" style="display:none;">Режим удаления включён: нажмите «+» на нужном столбике, чтобы удалить его.</div>
     <div id="months"></div>
   </div>
 </div>
@@ -111,10 +108,10 @@
       <h3 style="margin:0;">Статистика за всё время</h3>
       <button id="closeStats" class="btn xs">Закрыть</button>
     </div>
-    <div class="muted">Суммируются все месяцы с начала использования. Положительные и отрицательные значения считаются раздельно, «Итого» — разность.</div>
+    <div class="muted">Сумма существующих ячеек по всем месяцам.</div>
     <table class="table" id="statsTable">
       <thead>
-        <tr><th>Столбик</th><th>+</th><th>−</th><th>Итого</th></tr>
+        <tr><th>Столбик</th><th>Итого</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -123,7 +120,7 @@
 
 <script>
   /* ---------- utils & storage ---------- */
-  const SKEY='psyhguard-attn-v1';
+  const SKEY='psyhguard-attn-v2'; // новый ключ, чтобы не конфликтовать со старым форматом
   const COLORS=['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c8)'];
   const colorAt=i=>COLORS[i%COLORS.length];
   const uid=()=>Math.random().toString(36).slice(2,10);
@@ -137,7 +134,6 @@
   /* ---------- state ---------- */
   let app = load();
   if(!app){
-    // первый запуск — создаём месяц
     const now=new Date();
     app = {
       startedAt: Date.now(),
@@ -146,22 +142,35 @@
         title: monthTitle(now),
         createdAt: Date.now(),
         collapsed: false,
-        columns: [] // {id,name,colorIdx,cells:[1,-1,1,...]}
-      }]
+        columns: [] // {id,name,colorIdx,cells:[1,1,1,...]}
+      }],
+      deleteMode: false
     };
     save(app);
   }
+  let deleteMode = !!app.deleteMode;
 
-  /* ---------- DOM ---------- */
+  /* ---------- DOM refs ---------- */
   const elMonths = document.getElementById('months');
   const elNewCol = document.getElementById('newColName');
   const addColBtn = document.getElementById('addColBtn');
+  const delModeBtn = document.getElementById('delModeBtn');
+  const delHint = document.getElementById('delHint');
 
   const newMonthBtn = document.getElementById('newMonthBtn');
   const statsBtn = document.getElementById('statsBtn');
   const statsModal = document.getElementById('statsModal');
   const closeStats = document.getElementById('closeStats');
   const statsBody = document.querySelector('#statsTable tbody');
+
+  function setDeleteMode(on){
+    deleteMode = on;
+    app.deleteMode = on;
+    document.body.classList.toggle('del-mode', on);
+    delHint.style.display = on ? 'block' : 'none';
+    delModeBtn.classList.toggle('on', on);
+    save(app);
+  }
 
   /* ---------- rendering ---------- */
   function render(){
@@ -171,8 +180,7 @@
 
       // header (accordion)
       const head=document.createElement('div'); head.className='month-head';
-      const caret=document.createElement('span'); caret.className='tag';
-      caret.textContent = m.collapsed ? 'Раскрыть' : 'Свернуть';
+      const caret=document.createElement('span'); caret.className='btn xs'; caret.textContent = m.collapsed ? 'Раскрыть' : 'Свернуть';
       const title=document.createElement('div'); title.className='month-title'; title.textContent=m.title;
       head.appendChild(title); head.appendChild(caret);
       head.onclick=()=>{ m.collapsed=!m.collapsed; save(app); render(); };
@@ -180,7 +188,6 @@
       mWrap.appendChild(head);
 
       if(!m.collapsed){
-        // columns area
         const cols=document.createElement('div'); cols.className='columns';
 
         if(m.columns.length===0){
@@ -191,10 +198,15 @@
         } else {
           m.columns.forEach((c,ci)=>{
             const card=document.createElement('div'); card.className='col';
-            // name + counter
-            const head=document.createElement('div'); head.className='col-head';
+
+            // график
+            const bar=document.createElement('div'); bar.className='bar';
+            (c.cells||[]).forEach(()=>{ const cell=document.createElement('div'); cell.className='cell'; bar.appendChild(cell); });
+
+            // подписи — теперь снизу
+            const meta=document.createElement('div'); meta.className='meta';
             const name=document.createElement('div'); name.className='col-name'; name.textContent=c.name;
-            name.style.borderBottom=`3px solid ${colorAt(c.colorIdx)}`;
+            name.style.borderBottomColor = colorAt(c.colorIdx);
             name.title='Клик — переименовать';
             name.onclick=()=>{
               const nv=prompt('Название столбика:', c.name);
@@ -202,45 +214,40 @@
             };
             const cnt=document.createElement('div'); cnt.className='count';
             cnt.textContent=`записей: ${c.cells.length}`;
+            meta.appendChild(name); meta.appendChild(cnt);
 
-            head.appendChild(name); head.appendChild(cnt);
-
-            // bar
-            const bar=document.createElement('div'); bar.className='bar';
-            (c.cells||[]).forEach(v=>{
-              const cell=document.createElement('div');
-              cell.className='cell '+(v>0?'pos':'neg');
-              cell.style.background = v>0 ? 'var(--pos)' : 'var(--neg)';
-              bar.appendChild(cell);
-            });
-
-            // controls
+            // кнопки
             const ctrls=document.createElement('div'); ctrls.className='controls';
             const bMinus=document.createElement('button'); bMinus.className='btn'; bMinus.textContent='−';
-            bMinus.title='Добавить −1';
-            bMinus.onclick=()=>{ c.cells.push(-1); save(app); render(); };
-
-            const bDel=document.createElement('button'); bDel.className='btn'; bDel.textContent='×';
-            bDel.title='Удалить столбик';
-            bDel.onclick=()=>{
-              if(!confirm(`Удалить столбик «${c.name}» из месяца «${m.title}»?`)) return;
-              m.columns = m.columns.filter(x=>x.id!==c.id);
-              save(app); render();
+            bMinus.title='Убрать одну ячейку';
+            bMinus.onclick=()=>{
+              if(c.cells.length>0){ c.cells.pop(); save(app); render(); }
             };
 
-            const bPlus=document.createElement('button'); bPlus.className='btn'; bPlus.textContent='+';
-            bPlus.title='Добавить +1';
-            bPlus.onclick=()=>{ c.cells.push(+1); save(app); render(); };
+            const bPlus=document.createElement('button'); bPlus.className='btn plus'; bPlus.textContent='+';
+            bPlus.title='Добавить ячейку (или удалить столбик в режиме удаления)';
+            bPlus.onclick=()=>{
+              if(deleteMode){
+                if(confirm(`Удалить столбик «${c.name}» из месяца «${m.title}»?`)){
+                  m.columns = m.columns.filter(x=>x.id!==c.id);
+                  save(app); render();
+                }
+              }else{
+                c.cells.push(1); save(app); render();
+              }
+            };
 
-            ctrls.appendChild(bMinus); ctrls.appendChild(bDel); ctrls.appendChild(bPlus);
+            ctrls.appendChild(bMinus);
+            ctrls.appendChild(bPlus);
 
-            card.appendChild(head); card.appendChild(bar); card.appendChild(ctrls);
+            card.appendChild(bar);
+            card.appendChild(meta);
+            card.appendChild(ctrls);
             cols.appendChild(card);
           });
         }
 
         mWrap.appendChild(cols);
-        // divider between months
         if(mi < app.months.length-1){
           const hr=document.createElement('div'); hr.className='divider';
           mWrap.appendChild(hr);
@@ -249,20 +256,23 @@
 
       elMonths.appendChild(mWrap);
     });
+
+    setDeleteMode(deleteMode); // обновить визуал кнопки/хинта
   }
 
   /* ---------- actions ---------- */
   addColBtn.onclick=()=>{
     const v=(elNewCol.value||'').trim(); if(!v) return;
     const cur=app.months.find(m=>!m.collapsed) || app.months[app.months.length-1];
-    const colorIdx = cur.columns.length % COLORS.length;
+    const colorIdx = cur.columns.length % 8;
     cur.columns.push({id:uid(),name:v,colorIdx,cells:[]});
     elNewCol.value='';
     save(app); render();
   };
 
+  delModeBtn.onclick=()=> setDeleteMode(!deleteMode);
+
   newMonthBtn.onclick=()=>{
-    // сворачиваем текущий раскрытый (обычно последний) и создаём новый с копией имён
     const last = app.months[app.months.length-1];
     last.collapsed = true;
 
@@ -282,8 +292,8 @@
     const map = {};
     app.months.forEach(m=>{
       (m.columns||[]).forEach(c=>{
-        if(!map[c.name]) map[c.name]={plus:0,minus:0};
-        c.cells.forEach(v=>{ if(v>0) map[c.name].plus++; else map[c.name].minus++; });
+        if(!map[c.name]) map[c.name]=0;
+        map[c.name]+= (c.cells?.length||0);
       });
     });
     return map;
@@ -293,13 +303,10 @@
     const stats=getAllTimeStats();
     statsBody.innerHTML='';
     Object.keys(stats).sort().forEach(name=>{
-      const {plus,minus}=stats[name];
       const tr=document.createElement('tr');
       const td1=document.createElement('td'); td1.textContent=name;
-      const td2=document.createElement('td'); td2.textContent=plus;
-      const td3=document.createElement('td'); td3.textContent=minus;
-      const td4=document.createElement('td'); td4.textContent=plus-minus;
-      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+      const td2=document.createElement('td'); td2.textContent=stats[name];
+      tr.appendChild(td1); tr.appendChild(td2);
       statsBody.appendChild(tr);
     });
   }
@@ -311,7 +318,6 @@
   /* ---------- init ---------- */
   render();
 
-  // PWA SW registration (как в других страницах)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(console.error);
