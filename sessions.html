@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>PsyhGuard — Прошлые сессии</title>
+  <style>
+    :root{ --bg:#f7f8fb; --card:#fff; --txt:#1f2937; --muted:#6b7280; --line:#e8ebf2;
+           --accent:#3b82f6; --accent-strong:#2563eb; }
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt);}
+    .wrap{max-width:900px;margin:24px auto 80px;padding:0 14px}
+    h1{margin:0 0 16px}
+    .cabinet-link{
+      position:fixed;top:16px;right:16px;background:var(--accent);color:#fff;
+      padding:8px 14px;border-radius:8px;font-size:14px;text-decoration:none;font-weight:500;
+    }
+    .cabinet-link:hover{background:var(--accent-strong)}
+    .muted{color:var(--muted);font-size:12px}
+    .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .item{
+      background:var(--card);border:1px solid var(--line);border-radius:10px;
+      padding:12px 14px;cursor:pointer;
+    }
+    .head{display:flex;align-items:center;gap:10px}
+    .badge{
+      font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid #dbe3f3;background:#eef3ff;color:#1e3a8a
+    }
+    .text{margin:6px 0 0;word-break:break-word}
+    .details{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+    .actions{display:flex;gap:8px;margin-top:8px}
+    .btn{cursor:pointer;padding:6px 12px;font-size:14px;border-radius:8px;border:1px solid var(--line);background:#fff}
+    .btn:hover{background:#f0f3fa}
+    .row{display:flex;gap:8px;align-items:center}
+    .grow{flex:1}
+    @media (max-width:600px){ .wrap{padding:0 10px} }
+  </style>
+</head>
+<body>
+<a href="cabinet.html" class="cabinet-link">Кабинет</a>
+
+<div class="wrap">
+  <h1>Прошлые сессии</h1>
+  <div class="muted">Все вопросы и заметки из «ПОС» и закреплённые вопросы из «Аппроксимаций».</div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+  // Ключи хранилищ
+  const POS_KEY = "pos-questions-v1";
+  const APP_KEY = "psyhguard-pwa-v2";
+
+  // Загружаем данные из локального хранилища
+  function loadPOS(){
+    try { return JSON.parse(localStorage.getItem(POS_KEY) || "[]"); } catch { return []; }
+  }
+  function loadAPP(){
+    try { return JSON.parse(localStorage.getItem(APP_KEY) || "[]"); } catch { return []; }
+  }
+
+  // Преобразуем в общую ленту
+  function buildFeed(){
+    const pos = loadPOS().map((text, i)=>({
+      id: "pos_"+i,
+      source: "POS",
+      text,
+      // для сортировки новые сверху — POS мы добавляли unshift, имитируем timestamp индексом
+      ts: Date.now() - i
+    }));
+
+    const app = loadAPP()
+      .filter(p => (p.question||"").trim().length) // только проекты с вопросом
+      .map((p, i)=>({
+        id: p.id || ("app_"+i),
+        source: "APP",
+        text: p.question,
+        final: p.final || "",
+        ts: Date.now() - (100000 + i) // чуть "старше", чтобы порядок был стабильным
+      }));
+
+    // Объединяем и сортируем по ts убыв.
+    return [...pos, ...app].sort((a,b)=>b.ts-a.ts);
+  }
+
+  const listEl = document.getElementById('list');
+
+  function render(){
+    const data = buildFeed();
+    listEl.innerHTML = "";
+    if (data.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'muted';
+      empty.style.marginTop = '12px';
+      empty.textContent = "Пока пусто. Добавляйте мысли в ПОС или фиксируйте вопрос в Аппроксимациях — они появятся здесь.";
+      listEl.appendChild(empty);
+      return;
+    }
+
+    data.forEach((item, idx)=>{
+      const card = document.createElement('div');
+      card.className = 'item';
+
+      const head = document.createElement('div');
+      head.className = 'head';
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = item.source === "POS" ? "ПОС" : "Аппроксимации";
+
+      const title = document.createElement('div');
+      title.className = 'grow';
+      title.style.fontWeight = '600';
+      title.textContent = item.text;
+
+      head.appendChild(badge);
+      head.appendChild(title);
+
+      const details = document.createElement('div');
+      details.className = 'details';
+
+      // тело деталей
+      const body = document.createElement('div');
+      body.className = 'text';
+      body.innerHTML = `
+        <div class="muted">Источник: ${item.source === "POS" ? "Полу-осознаваемый слой" : "Аппроксимации"}</div>
+        ${item.final && item.source==="APP" ? `<div style="margin-top:6px;"><b>Финальный вывод:</b><br>${escapeHtml(item.final)}</div>` : ""}
+      `;
+
+      // действия
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      // редактирование (по месту)
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn';
+      editBtn.textContent = 'Редактировать';
+      editBtn.onclick = (e)=>{
+        e.stopPropagation();
+        const nv = prompt("Изменить запись:", item.text);
+        if (nv===null) return;
+        const v = nv.trim();
+        if (!v) return;
+
+        if (item.source === "POS"){
+          const pos = loadPOS();
+          const idxInPos = parseInt(item.id.split("_")[1],10);
+          // так как лента объединённая и POS добавлялся unshift, индекс мог сдвинуться.
+          // Найдём по тексту и позиции; если не нашли — пройдёмся по всем и заменим первое совпадение.
+          if (pos[idxInPos] !== undefined && pos[idxInPos] === item.text){
+            pos[idxInPos] = v;
+          } else {
+            const j = pos.indexOf(item.text);
+            if (j>=0) pos[j] = v;
+          }
+          localStorage.setItem(POS_KEY, JSON.stringify(pos));
+        } else {
+          const app = loadAPP();
+          const i = app.findIndex(p => (p.id||"") === item.id);
+          if (i>=0) { app[i].question = v; localStorage.setItem(APP_KEY, JSON.stringify(app)); }
+        }
+        render();
+      };
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn';
+      delBtn.textContent = 'Удалить';
+      delBtn.onclick = (e)=>{
+        e.stopPropagation();
+        if (!confirm("Удалить эту запись?")) return;
+
+        if (item.source === "POS"){
+          const pos = loadPOS();
+          // удаляем первое совпадение по тексту
+          const j = pos.indexOf(item.text);
+          if (j>=0){ pos.splice(j,1); localStorage.setItem(POS_KEY, JSON.stringify(pos)); }
+        } else {
+          const app = loadAPP();
+          const i = app.findIndex(p => (p.id||"") === item.id);
+          if (i>=0){ app.splice(i,1); localStorage.setItem(APP_KEY, JSON.stringify(app)); }
+        }
+        render();
+      };
+
+      const openBtn = document.createElement('a');
+      openBtn.className = 'btn';
+      openBtn.textContent = item.source === "POS" ? "Открыть в ПОС" : "Открыть в Аппроксимациях";
+      openBtn.href = item.source === "POS" ? "pos.html" : "app.html";
+      openBtn.onclick = (e)=>{ e.stopPropagation(); };
+
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      actions.appendChild(openBtn);
+
+      details.appendChild(body);
+      details.appendChild(actions);
+
+      card.appendChild(head);
+      card.appendChild(details);
+
+      // раскрытие по клику
+      card.addEventListener('click', ()=>{
+        details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+      });
+
+      listEl.appendChild(card);
+    });
+  }
+
+  // простая экранизация
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  render();
+</script>
+</body>
+</html>
