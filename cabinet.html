@@ -12,45 +12,44 @@
 
   <style>
     :root{
-      --bg:#f7f8fb; --card:#fff; --txt:#111827; --muted:#6b7280; --line:#e8ebf2; --accent:#3b82f6; --accent-strong:#2563eb;
+      --bg:#f7f8fb; --card:#fff; --txt:#111827; --muted:#6b7280; --line:#e8ebf2;
+      --accent:#3b82f6; --accent-strong:#2563eb;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
-    .wrap{max-width:1000px;margin:24px auto;padding:0 14px}
-    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-    h1{margin:0}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-    .card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
-          padding:16px;border-radius:14px;box-shadow:0 2px 8px rgba(17,24,39,.04)}
-    .card:hover{border-color:#d4dcf0}
-    .title{font-weight:700;margin-bottom:6px}
-    .desc{color:var(--muted);font-size:14px}
-    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;
+      background:var(--bg);color:var(--txt);
+    }
+    .wrap{max-width:680px;margin:24px auto;padding:0 14px}
+    h1{margin:0 0 12px 0;font-size:22px}
+    .muted{color:var(--muted);margin-bottom:14px}
+
+    /* простые большие кнопки- ссылки */
+    .btn-link{
+      display:block; width:100%;
+      text-decoration:none; color:var(--txt); text-align:center;
+      background:#fff; border:1px solid var(--line); border-radius:12px;
+      padding:14px 16px; margin:10px 0; font-size:16px; font-weight:600;
+      box-shadow:0 2px 8px rgba(17,24,39,.04);
+    }
+    .btn-link:active{transform:scale(.99)}
+    .btn-link.primary{background:var(--accent); color:#fff; border-color:transparent}
+    .back{display:inline-block;margin-top:6px;text-decoration:none;color:var(--accent)}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <h1>PsyhGuard — Кабинет</h1>
-    <a class="card" style="padding:8px 12px" href="index.html"><span class="title" style="margin:0">← Аппроксимации</span></a>
-  </div>
+  <h1>PsyhGuard — Кабинет</h1>
+  <div class="muted">Быстрый переход в разделы:</div>
 
-  <div class="grid">
-    <a class="card" href="index.html">
-      <div class="title">Аппроксимации</div>
-      <div class="desc">Работа со словами, группировка в аппроксимации, лайнапы и финальный вывод.</div>
-    </a>
+  <!-- как было раньше: просто вертикальный список крупных кнопок -->
+  <a class="btn-link" href="index.html">Аппроксимации</a>
+  <a class="btn-link" href="pos.html">ПОС</a>
 
-    <a class="card" href="pos.html">
-      <div class="title">ПОС</div>
-      <div class="desc">Переход в ваш инструмент «ПОС». (файл <code>pos.html</code> в корне).</div>
-    </a>
+  <!-- новая нижняя кнопка -->
+  <a class="btn-link primary" href="attention.html">Отслеживание внимания</a>
 
-    <a class="card" href="attention.html">
-      <div class="title">Отслеживание внимания</div>
-      <div class="desc">Столбики по направлениям (Спорт, Здоровье...), ежедневные +/− и сводная статистика.</div>
-    </a>
-  </div>
+  <a class="back" href="index.html">← назад к Аппроксимациям</a>
 </div>
 
 <script>
