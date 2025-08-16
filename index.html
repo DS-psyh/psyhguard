@@ -3,12 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- фикс масштаба на мобилке, без авто-зума iOS -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
   <title>PsyhGuard — Аппроксимации</title>
 
   <!-- PWA -->
@@ -26,25 +23,24 @@
     html,body{height:100%}
     body{
       margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;
-      background:var(--bg);color:var(--txt);
-      -webkit-text-size-adjust:100%;
+      background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%;
     }
 
-    /* шапка */
+    /* Header */
     .app-header{
       position:sticky;top:0;z-index:100;
-      display:flex;justify-content:flex-end;align-items:center;
+      display:flex;justify-content:flex-end;align-items:center;gap:8px;
       padding:10px 16px;background:rgba(255,255,255,.85);
       backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
     }
-    .cabinet-link{
+    .cabinet-link,.new-link{
       display:inline-flex;align-items:center;gap:.5rem;
       padding:8px 14px;border-radius:9999px;
       background:#fff;border:1px solid var(--line);
       font-weight:600;text-decoration:none;color:var(--txt);
       box-shadow:0 1px 2px rgba(0,0,0,.04);
     }
-    .cabinet-link:hover{background:var(--accent);color:#fff}
+    .cabinet-link:hover,.new-link:hover{background:var(--accent);color:#fff}
 
     .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
     h1{margin:0 0 14px}
@@ -90,8 +86,8 @@
 </head>
 <body>
 
-<!-- Шапка с переходом в кабинет -->
 <header class="app-header">
+  <a class="new-link" href="index.html#new">Новый проект</a>
   <a class="cabinet-link" href="cabinet.html" aria-label="Личный кабинет">Личный кабинет</a>
 </header>
 
@@ -168,7 +164,6 @@
       <span class="muted" id="savedNote" style="display:none;">Сохранено.</span>
     </div>
 
-    <!-- Инлайновый вывод -->
     <div id="finalInline" style="display:none; margin-top:18px;">
       <div id="inlineQuestion" style="font-weight:700; margin-bottom:8px;"></div>
       <div id="inlineAnswer"
@@ -183,6 +178,7 @@
   /* ---- Константы и утилы ---- */
   const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
   const STORAGE_KEY="psyhguard-pwa-v2";
+  const ACTIVE_KEY="psyhguard-active-id";
   const PASTELS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c7)","var(--c8)"];
   const colorAt=i=>PASTELS[i%PASTELS.length];
   const uid=()=>Math.random().toString(36).slice(2,10);
@@ -250,7 +246,7 @@
     });
   }
 
-  /* ---- Approximations (редактирование/удаление) ---- */
+  /* ---- Approximations ---- */
   function renderApproximations(){
     const s=project.types[currentType];
     elApproxList.innerHTML="";
@@ -379,6 +375,23 @@
   };
 
   /* ---- Init ---- */
+  // поддержка выбора проекта из кабинета
+  (function initProject(){
+    const list = loadAll();
+    const fromHashNew = location.hash === '#new';
+    const activeId = fromHashNew ? null : localStorage.getItem(ACTIVE_KEY);
+
+    if (fromHashNew || !list.length) {
+      project.id = uid();
+      saveProjectList(project);
+      localStorage.setItem(ACTIVE_KEY, project.id);
+    } else {
+      const found = list.find(p=>p.id===activeId) || list[0];
+      if (found) { project = found; localStorage.setItem(ACTIVE_KEY, project.id); }
+      else { saveProjectList(project); localStorage.setItem(ACTIVE_KEY, project.id); }
+    }
+  })();
+
   renderTabs(); applyTypeToUI();
 
   // PWA registration
