@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Каталог — Психо-инструменты</title>
+  <title>Каталог </title>
 
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3b82f6">
 
@@ -26,7 +25,7 @@
     .ds{margin:0;color:var(--muted);font-size:14px;line-height:1.35}
     .section{margin-top:24px}
     .badge{display:inline-block;font-size:12px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e3a8a;
-           padding:4px 8px;border-radius:999px;margin-bottom:6px}
+           padding:4px 8px;border-radius:999px;margin-bottom:0}
 
     @media (max-width: 900px){ .grid{grid-template-columns:repeat(2,1fr)} }
     @media (max-width: 600px){ .grid{grid-template-columns:1fr} body{background:#fff} .wrap{margin:20px auto} }
@@ -36,10 +35,6 @@
 <div class="wrap">
   <header>
     <h1>Каталог</h1>
-    <div>
-      <a class="badge" href="./cabinet.html">Кабинет</a>
-      <a class="badge" href="./sessions.html">Прошлые сессии</a>
-    </div>
   </header>
 
   <div class="muted">Выберите инструмент:</div>
@@ -65,13 +60,7 @@
         <h3 class="tt">Сказка-терапия</h3>
         <p class="ds">Комбинаторика плюсов/минусов персонажей и перспективы.</p>
       </a>
-
-      <a class="card" href="./cabinet.html">
-        <h3 class="tt">Кабинет</h3>
-        <p class="ds">Хранилище вопросов и переход к приложениям.</p>
-      </a>
-
-      
+      <!-- Больше НЕТ карточек «Кабинет» и «Прошлые сессии» -->
     </div>
   </div>
 
@@ -79,7 +68,6 @@
 </div>
 
 <script>
-  // Регистрация SW
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(console.error);
