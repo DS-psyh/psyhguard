@@ -21,12 +21,12 @@
       background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%;
     }
 
-    /* Header */
-    .app-header{
-      position:sticky;top:0;z-index:100;
-      display:flex;justify-content:flex-end;align-items:center;gap:8px;
-      padding:10px 16px;background:rgba(255,255,255,.85);
-      backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
+    .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
+    h1{margin:0 0 14px}
+
+    /* статичные кнопки сверху справа */
+    .top-actions{
+      display:flex;justify-content:flex-end;gap:10px;margin-bottom:8px;
     }
     .link{
       display:inline-flex;align-items:center;gap:.5rem;
@@ -35,8 +35,6 @@
     }
     .link:hover{background:#dbe3ff}
 
-    .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
-    h1{margin:0 0 14px}
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
     .tab{padding:8px 12px;border-radius:10px;background:#eef3ff;color:#1e3a8a;border:1px solid #dfe7ff;cursor:pointer}
     .tab.active{background:#e3ecff;border-color:#c9dafc;font-weight:600;color:#0f172a}
@@ -62,14 +60,12 @@
     .out h3{margin:0 0 10px}
     .out .hint{margin:0 0 18px}
 
-    /* утилити-классы */
     .row-between{display:flex;align-items:center;justify-content:space-between}
     .h3{margin:0}
     .mt-22{margin-top:22px}
     .mt-24{margin-top:24px}
     .h-sub{display:block;font-weight:500;opacity:.8}
 
-    /* Mobile */
     @media (max-width: 860px) {
       .row{flex-direction:column}
       .tab{padding:10px 14px}
@@ -81,12 +77,13 @@
 </head>
 <body>
 
-<header class="app-header">
-  <a class="link" href="./sessions.html">Прошлые сессии</a>
-  <a class="link" href="./index.html">Кабинет</a>
-</header>
-
 <div class="wrap">
+  <!-- две статичные кнопки -->
+  <div class="top-actions">
+    <a class="link" href="./sessions.html">Прошлые сессии</a>
+    <a class="link" href="./index.html">Кабинет</a>
+  </div>
+
   <h1>PsyhGuard — Аппроксимации</h1>
 
   <!-- вкладки типов -->
@@ -179,8 +176,8 @@ const colorAt=i=>PASTELS[i%PASTELS.length];
 
 /* ---------- константы/состояние ---------- */
 const TYPES=["Глаголы","Образы","Понятия","Прилагательные","Наречия"];
-const STORAGE_KEY="psyhguard-pwa-v2";    // тот же ключ, что читает sessions.html
-const ACTIVE_KEY="psyhguard-active-id"; // id активного проекта
+const STORAGE_KEY="psyhguard-pwa-v2";
+const ACTIVE_KEY="psyhguard-active-id";
 let currentType=TYPES[0];
 let project={
   id:uid(), question:"", questionLocked:false, final:"",
@@ -252,7 +249,7 @@ function render(){
   renderTabs(); renderWords(); renderApproximations(); renderLineups();
 
   const hasFinal=(project.final||'').trim();
-  $('#finalInline').style.display=hasFinal?'block':'none';
+  document.getElementById('finalInline').style.display=hasFinal?'block':'none';
   if(hasFinal){
     el('inlineQuestion').textContent=project.question||'Вопрос не указан';
     el('inlineAnswer').textContent=project.final;
@@ -260,7 +257,6 @@ function render(){
 }
 
 /* ---------- обработчики ---------- */
-// выбор проекта при входе (если пришли из sessions.html по ACTIVE_KEY или хотим новый через #new)
 (function initProject(){
   const list = loadAll();
   const fromHashNew = location.hash === '#new';
@@ -302,11 +298,11 @@ el('combineSelected').onclick=()=>{
   if(!selected.length) return alert('Выберите слева одно или несколько слов.');
   const id=uid();
   s.approximations.push({id,text:name,words:selected.map(w=>w.id)});
-  selected.forEach(w=>{w.selected=false;(w.approxIds||(w.approxIds=[])).includes(id)||w.approxIds.push(id);});
+  selected.forEach(w=>{ w.selected=false; (w.approxIds||(w.approxIds=[])).includes(id)||w.approxIds.push(id); });
   el('approxInput').value=''; renderWords(); renderApproximations(); saveProject(project);
 };
 
-// редактировать/удалить аппроксимацию (делегирование)
+// редактировать/удалить аппроксимацию
 el('approxList').addEventListener('click',e=>{
   const act=e.target.dataset.act; if(!act) return;
   const row=e.target.closest('[data-approx-id]'); const id=row.dataset.approxId;
@@ -338,7 +334,7 @@ el('finishBtn').onclick=()=>{
 /* ---------- init ---------- */
 render();
 
-// PWA (необязательно — если есть sw.js)
+// (опционально) регистрация SW
 if('serviceWorker' in navigator){
   addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
 }
