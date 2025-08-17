@@ -6,6 +6,9 @@ const ASSETS=[
   './app.html',       // ← добавь
   './sessions.html',  // ← и эту страницу
   './pos.html',       // ← ПОС: страница со списком вопросов
+  './sessions.html',
+  './skazka.html',
+  './attention.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
