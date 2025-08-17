@@ -1,30 +1,35 @@
-const CACHE='psyhguard-cache-v1';
-const ASSETS=[
+const CACHE = 'pg-cache-v3';
+const ASSETS = [
   './',
   './index.html',
+  './app.html',
+  './pos.html',
+  './attention.html',
   './skazka.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './cabinet.html',
+  './sessions.html',
+  './manifest.json'
 ];
 
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
 
-self.addEventListener('activate',e=>{
+self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
   );
 });
 
-self.addEventListener('fetch',e=>{
-  const req=e.request;
+self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(req).then(res=>res||fetch(req).then(r=>{
-      const copy=r.clone();
-      caches.open(CACHE).then(c=>c.put(req,copy));
-      return r;
-    }).catch(()=>caches.match('./index.html')))
+    caches.match(e.request).then(res =>
+      res ||
+      fetch(e.request).then(r => {
+        const copy = r.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return r;
+      }).catch(() => caches.match('./index.html'))
+    )
   );
 });
