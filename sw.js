@@ -1,9 +1,11 @@
 // sw.js
-const CACHE = 'psyhguard-cache-v3';               // ← новая версия (любой новый суффикс)
-const ASSETS = [
+const CACHE='psyhguard-cache-v2'; // обнови версию кэша
+const ASSETS=[
   './',
   './index.html',
-  './sessions.html',                              // если есть страница сессий
+  './app.html',       // ← добавь
+  './sessions.html',  // ← и эту страницу
+  './pos.html',       // ← ПОС: страница со списком вопросов
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
