@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>PsyhGuard — Сказка-терапия</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --txt:#1f2937; --muted:#6b7280; --line:#e8ebf2;
+      --accent:#3b82f6; --accent-strong:#2563eb;
+      --c1:#bcd4ff; --c2:#bfead9; --c3:#ffe1b5; --c4:#e8c9ff; --c5:#ffd0d4; --c6:#c8f1ff; --c7:#d6f5c8; --c8:#cdd8ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;
+      background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%;
+    }
+    .wrap{max-width:1100px;margin:24px auto 110px;padding:0 14px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    header h1{margin:0}
+    .nav{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{cursor:pointer;padding:10px 14px;border-radius:10px;background:#fff;color:var(--txt);border:1px solid var(--line);font-size:15px}
+    .btn.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
+    .btn.link{background:transparent;border-color:transparent;text-decoration:underline;color:#1e3a8a}
+    .muted{color:var(--muted);font-size:12px}
+
+    .row{display:flex;gap:16px}
+    .col{flex:1;background:var(--card);padding:18px;border-radius:14px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(17,24,39,.04)}
+    .input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--txt);font-size:16px}
+    .stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+    .chip .x{cursor:pointer;font-weight:700;opacity:.7}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    h3{margin:0 0 8px}
+
+    .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .card{position:relative;background:var(--card);padding:16px;border:1px solid var(--line);border-radius:14px}
+    .badge{position:absolute;top:-12px;left:12px;background:#111827;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;display:none}
+    .titleRow{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .titleRow .ttl{font-weight:700}
+    .hint{font-size:12px;color:var(--muted)}
+    .kicker{font-size:12px;color:#1e293b;background:#eef3ff;border:1px solid #dfe7ff;padding:8px 10px;border-radius:10px;margin:10px 0 0}
+
+    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
+    @media (max-width: 920px){
+      .row{flex-direction:column}
+      .grid4,.grid2{grid-template-columns:1fr}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Сказка-терапия</h1>
+    <div class="nav">
+      <a class="btn" href="./index.html">← Каталог</a>
+      <a class="btn" href="./cabinet.html">Кабинет</a>
+    </div>
+  </header>
+
+  <!-- ШАГ 1. Исходные персонажи и их черты -->
+  <div class="col">
+    <h3>Шаг 1 — Исходные персонажи</h3>
+    <div class="hint">Введите любимого и нелюбимого персонажей, затем добавьте их плюсы и минусы. Дубли мы будем убирать автоматически.</div>
+    <div class="row" style="margin-top:12px">
+      <!-- Любимый -->
+      <div class="col">
+        <div class="titleRow"><span class="ttl">Любимый персонаж</span></div>
+        <input class="input" id="favName" placeholder="например, Гарри Поттер"/>
+        <div class="divider"></div>
+        <div>
+          <div class="titleRow"><span class="ttl">Плюсы</span></div>
+          <div class="stack">
+            <input class="input" id="favPlusIn" placeholder="добавьте плюс и нажмите Enter"/>
+            <button class="btn" id="favPlusAdd">Добавить</button>
+          </div>
+          <div class="chips" id="favPlusList"></div>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <div class="titleRow"><span class="ttl">Минусы</span></div>
+          <div class="stack">
+            <input class="input" id="favMinusIn" placeholder="добавьте минус и нажмите Enter"/>
+            <button class="btn" id="favMinusAdd">Добавить</button>
+          </div>
+          <div class="chips" id="favMinusList"></div>
+        </div>
+      </div>
+
+      <!-- Нелюбимый -->
+      <div class="col">
+        <div class="titleRow"><span class="ttl">Нелюбимый персонаж</span></div>
+        <input class="input" id="disName" placeholder="например, Драко Малфой"/>
+        <div class="divider"></div>
+        <div>
+          <div class="titleRow"><span class="ttl">Плюсы</span></div>
+          <div class="stack">
+            <input class="input" id="disPlusIn" placeholder="добавьте плюс и нажмите Enter"/>
+            <button class="btn" id="disPlusAdd">Добавить</button>
+          </div>
+          <div class="chips" id="disPlusList"></div>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <div class="titleRow"><span class="ttl">Минусы</span></div>
+          <div class="stack">
+            <input class="input" id="disMinusIn" placeholder="добавьте минус и нажмите Enter"/>
+            <button class="btn" id="disMinusAdd">Добавить</button>
+          </div>
+          <div class="chips" id="disMinusList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ШАГ 2. Четыре набора -->
+  <div class="col" style="margin-top:18px;">
+    <h3>Шаг 2 — Четыре набора характеристик</h3>
+    <div class="hint">Название набора и ярлык-смысл появятся только после того, как вы впишете персонажа, который подходит под набор.</div>
+    <div class="grid4" style="margin-top:12px">
+      <!-- Плюс + Плюс -->
+      <div class="card" id="cardPP">
+        <div class="badge" id="badgePP">Идеальная личность</div>
+        <div class="titleRow"><span class="ttl" id="ttlPP">Набор #1 (плюсы+плюсы)</span></div>
+        <div class="chips" id="listPP"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="namePP" placeholder="персонаж под этот набор"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Минус + Минус -->
+      <div class="card" id="cardMM">
+        <div class="badge" id="badgeMM">Внутренний насмотрщик</div>
+        <div class="titleRow"><span class="ttl" id="ttlMM">Набор #2 (минусы+минусы)</span></div>
+        <div class="chips" id="listMM"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="nameMM" placeholder="персонаж под этот набор"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Плюсы первого + Минусы второго -->
+      <div class="card" id="cardPM">
+        <div class="badge" id="badgePM">Работяга / повседневный мод</div>
+        <div class="titleRow"><span class="ttl" id="ttlPM">Набор #3 (плюсы 1-го + минусы 2-го)</span></div>
+        <div class="chips" id="listPM"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="namePM" placeholder="персонаж под этот набор"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Минусы первого + Плюсы второго -->
+      <div class="card" id="cardMP">
+        <div class="badge" id="badgeMP">Уставшая личность (сам собой)</div>
+        <div class="titleRow"><span class="ttl" id="ttlMP">Набор #4 (минусы 1-го + плюсы 2-го)</span></div>
+        <div class="chips" id="listMP"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="nameMP" placeholder="персонаж под этот набор"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ШАГ 3. Перспективы -->
+  <div class="col" id="stage3" style="margin-top:18px; display:none;">
+    <h3>Шаг 3 — Перспективы</h3>
+    <div class="hint">Формируется после того, как заданы персонажи для всех четырёх наборов: 1+4 = ближайшая перспектива, 2+3 = долгосрочная перспектива. Дубли удаляются.</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card">
+        <div class="titleRow"><span class="ttl">Ближайшая перспектива (1 + 4)</span></div>
+        <div class="chips" id="listNear"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="nameNear" placeholder="персонаж под эту перспективу"/>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="titleRow"><span class="ttl">Долгосрочная перспектива (2 + 3)</span></div>
+        <div class="chips" id="listLong"></div>
+        <div class="kicker">
+          <div class="stack" style="margin-top:6px">
+            <input class="input" id="nameLong" placeholder="персонаж под эту перспективу"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="muted" style="margin-top:14px">
+    Примечание: данные нигде не сохраняются — всё происходит только на экране.
+  </div>
+</div>
+
+<script>
+/* ===== Утилиты ===== */
+const norm = s => (s||"").toLowerCase().normalize('NFKC').replace(/\s+/g,' ').trim();
+const dedupe = arr => {
+  const m=new Map();
+  (arr||[]).forEach(s=>{
+    const key=norm(s);
+    if(!key) return;
+    if(!m.has(key)) m.set(key, (s||"").trim());
+  });
+  return Array.from(m.values());
+};
+const makeChip = (text, onRemove) => {
+  const el=document.createElement('span');
+  el.className='chip';
+  const t=document.createElement('span'); t.textContent=text;
+  const x=document.createElement('span'); x.textContent='×'; x.className='x';
+  x.onclick = ()=>onRemove && onRemove();
+  el.appendChild(t); el.appendChild(x);
+  return el;
+};
+const renderList = (host, items, removable=false, onRemoveAt=null) => {
+  host.innerHTML='';
+  items.forEach((txt,idx)=>{
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    const t=document.createElement('span'); t.textContent=txt;
+    chip.appendChild(t);
+    if(removable){
+      const x=document.createElement('span'); x.textContent='×'; x.className='x';
+      x.onclick=()=>{ onRemoveAt && onRemoveAt(idx); };
+      chip.appendChild(x);
+    }
+    host.appendChild(chip);
+  });
+};
+
+/* ===== Модель ===== */
+const model = {
+  favName:'', disName:'',
+  favPlus:[], favMinus:[],
+  disPlus:[], disMinus:[],
+  names:{ pp:'', mm:'', pm:'', mp:'', near:'', long:'' },
+  combos:{ pp:[], mm:[], pm:[], mp:[], near:[], long:[] }
+};
+
+/* ===== DOM ===== */
+const el = id => document.getElementById(id);
+
+// Вводы
+const favName = el('favName');
+const disName = el('disName');
+const favPlusIn = el('favPlusIn'), favMinusIn = el('favMinusIn');
+const disPlusIn = el('disPlusIn'), disMinusIn = el('disMinusIn');
+
+// Списки исходников
+const favPlusList = el('favPlusList'), favMinusList = el('favMinusList');
+const disPlusList = el('disPlusList'), disMinusList = el('disMinusList');
+
+// Кнопки добавления
+el('favPlusAdd').onclick = ()=> addItem(favPlusIn, model.favPlus, favPlusList);
+el('favMinusAdd').onclick = ()=> addItem(favMinusIn, model.favMinus, favMinusList);
+el('disPlusAdd').onclick = ()=> addItem(disPlusIn, model.disPlus, disPlusList);
+el('disMinusAdd').onclick = ()=> addItem(disMinusIn, model.disMinus, disMinusList);
+
+// Enter на инпутах
+[favPlusIn,favMinusIn,disPlusIn,disMinusIn].forEach(inp=>{
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){ e.preventDefault();
+      inp.nextElementSibling?.click();
+    }
+  });
+});
+
+// Названия наборов (ввод персонажей под набор)
+['PP','MM','PM','MP','Near','Long'].forEach(k=>{
+  el('name'+k).addEventListener('input', e=>{
+    const key = k.toLowerCase();
+    model.names[key] = e.target.value.trim();
+    applyBadges();
+    // показать перспективы только когда заданы все 4 первых
+    const haveAllFour = ['pp','mm','pm','mp'].every(x=> (model.names[x]||'').length>0 );
+    el('stage3').style.display = haveAllFour ? 'block' : 'none';
+  });
+});
+
+/* ===== Логика добавления/удаления ===== */
+function addItem(inputEl, arr, host){
+  const raw = (inputEl.value||'').trim();
+  if(!raw) return;
+  const next = dedupe([...arr, raw]);
+  arr.length = 0; arr.push(...next);
+  inputEl.value='';
+  renderList(host, arr, true, idx=>{
+    arr.splice(idx,1);
+    renderList(host, arr, true, (i)=>{} );
+    recompute();
+  });
+  recompute();
+}
+function renderSourceLists(){
+  renderList(favPlusList, model.favPlus, true, idx=>{ model.favPlus.splice(idx,1); renderSourceLists(); recompute(); });
+  renderList(favMinusList, model.favMinus, true, idx=>{ model.favMinus.splice(idx,1); renderSourceLists(); recompute(); });
+  renderList(disPlusList, model.disPlus, true, idx=>{ model.disPlus.splice(idx,1); renderSourceLists(); recompute(); });
+  renderList(disMinusList, model.disMinus, true, idx=>{ model.disMinus.splice(idx,1); renderSourceLists(); recompute(); });
+}
+
+/* ===== Комбинации ===== */
+function recompute(){
+  // имена
+  model.favName = favName.value.trim();
+  model.disName = disName.value.trim();
+
+  // четыре базовых набора
+  const pp = dedupe([...(model.favPlus||[]), ...(model.disPlus||[])]);
+  const mm = dedupe([...(model.favMinus||[]), ...(model.disMinus||[])]);
+  const pm = dedupe([...(model.favPlus||[]), ...(model.disMinus||[])]);
+  const mp = dedupe([...(model.favMinus||[]), ...(model.disPlus||[])]);
+
+  model.combos.pp = pp;
+  model.combos.mm = mm;
+  model.combos.pm = pm;
+  model.combos.mp = mp;
+
+  // рендер четырёх
+  renderList(el('listPP'), pp);
+  renderList(el('listMM'), mm);
+  renderList(el('listPM'), pm);
+  renderList(el('listMP'), mp);
+
+  // перспективы (появятся, когда заданы имена для всех 4 наборов)
+  if(['pp','mm','pm','mp'].every(x=> (model.names[x]||'').length>0 )){
+    const near = dedupe([ ...pp, ...mp ]);  // 1 + 4
+    const long = dedupe([ ...mm, ...pm ]);  // 2 + 3
+    model.combos.near = near;
+    model.combos.long = long;
+    renderList(el('listNear'), near);
+    renderList(el('listLong'), long);
+  }
+
+  applyTitles();
+  applyBadges();
+}
+function applyTitles(){
+  // показываем имена наборов как заголовки, если пользователь вписал персонажа,
+  // иначе — остаются технические подписи
+  [
+    ['PP','Набор #1 (плюсы+плюсы)'],
+    ['MM','Набор #2 (минусы+минусы)'],
+    ['PM','Набор #3 (плюсы 1-го + минусы 2-го)'],
+    ['MP','Набор #4 (минусы 1-го + плюсы 2-го)'],
+  ].forEach(([k,def])=>{
+    const key=k.toLowerCase();
+    const ttl = el('ttl'+k);
+    const name = (model.names[key]||'').trim();
+    ttl.textContent = name ? name : def;
+  });
+}
+function applyBadges(){
+  // бейджи-смыслы должны появляться только если вписано имя под набор
+  const map = {
+    pp:'badgePP',
+    mm:'badgeMM',
+    pm:'badgePM',
+    mp:'badgeMP'
+  };
+  Object.entries(map).forEach(([key, id])=>{
+    const show = (model.names[key]||'').trim().length>0;
+    const node = el(id);
+    node.style.display = show ? 'inline-block' : 'none';
+  });
+}
+
+/* ===== События ввода имён персонажей в Шаге 1 ===== */
+[favName, disName].forEach(inp=> inp.addEventListener('input', ()=> recompute()));
+
+/* ===== Инициализация ===== */
+renderSourceLists();
+recompute();
+
+// Регистрация SW (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  });
+}
+</script>
+</body>
+</html>
