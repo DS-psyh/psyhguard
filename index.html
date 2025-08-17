@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Каталог — Психо-инструменты</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+
+  <style>
+    :root{ --bg:#f7f8fb; --txt:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#3b82f6; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:1000px;margin:40px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+    h1{margin:0;font-size:28px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:12px}
+    .card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--line);
+          border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(17,24,39,.04);transition:.15s transform ease}
+    .card:hover{transform:translateY(-2px)}
+    .tt{font-weight:700;margin:0 0 6px}
+    .ds{margin:0;color:var(--muted);font-size:14px;line-height:1.35}
+    .section{margin-top:24px}
+    .badge{display:inline-block;font-size:12px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e3a8a;
+           padding:4px 8px;border-radius:999px;margin-bottom:6px}
+
+    @media (max-width: 900px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 600px){ .grid{grid-template-columns:1fr} body{background:#fff} .wrap{margin:20px auto} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Каталог</h1>
+    <div>
+      <a class="badge" href="./cabinet.html">Кабинет</a>
+      <a class="badge" href="./sessions.html">Прошлые сессии</a>
+    </div>
+  </header>
+
+  <div class="muted">Выберите инструмент:</div>
+
+  <div class="section">
+    <div class="grid">
+      <a class="card" href="./app.html">
+        <h3 class="tt">Аппроксимации</h3>
+        <p class="ds">Инструмент работы с аппроксимациями и моделями.</p>
+      </a>
+
+      <a class="card" href="./pos.html">
+        <h3 class="tt">ПОС</h3>
+        <p class="ds">План описания ситуации (или как ты его используешь).</p>
+      </a>
+
+      <a class="card" href="./attention.html">
+        <h3 class="tt">Отслеживание внимания</h3>
+        <p class="ds">Трекинг внимания и переключений.</p>
+      </a>
+
+      <a class="card" href="./skazka.html">
+        <h3 class="tt">Сказка-терапия</h3>
+        <p class="ds">Комбинаторика плюсов/минусов персонажей и перспективы.</p>
+      </a>
+
+      <a class="card" href="./cabinet.html">
+        <h3 class="tt">Кабинет</h3>
+        <p class="ds">Хранилище вопросов и переход к приложениям.</p>
+      </a>
+
+      <a class="card" href="./sessions.html">
+        <h3 class="tt">Прошлые сессии</h3>
+        <p class="ds">Лента ранее заданных вопросов.</p>
+      </a>
+    </div>
+  </div>
+
+  <p class="muted" style="margin-top:18px">Поддерживается офлайн-режим.</p>
+</div>
+
+<script>
+  // Регистрация SW
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>
+</body>
+</html>
