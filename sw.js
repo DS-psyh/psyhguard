@@ -6,7 +6,6 @@ const ASSETS = [
   './pos.html',
   './attention.html',
   './skazka.html',
-  './cabinet.html',
   './sessions.html',
   './manifest.json'
 ];
